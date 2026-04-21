@@ -1,422 +1,347 @@
-/* ========================================
-   렛츠풋살 다크 테마 - Spotify 스타일
-   ======================================== */
+/* =========================================
+   렛츠풋살 — 홈 페이지 v3
+   ========================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
 
 :root {
-  /* 배경 색상 */
-  --bg-primary: #121212;
-  --bg-secondary: #1E1E1E;
-  --bg-card: #282828;
-  --bg-card-hover: #333333;
-
-  /* 텍스트 색상 */
-  --text-primary: #FFFFFF;
-  --text-secondary: #B3B3B3;
-  --text-muted: #727272;
-
-  /* 포인트 색상 */
-  --accent-green: #1DB954;
-  --accent-green-hover: #1ED760;
-  --accent-orange: #E85D04;
-  --accent-orange-hover: #FF6B35;
-
-  /* 기타 */
-  --border-color: #333333;
-  --transition: all 0.2s ease;
+  --accent:        #00C878;
+  --accent-dark:   #00A663;
+  --accent-glow:   rgba(0,200,120,0.22);
+  --accent-dim:    rgba(0,200,120,0.08);
+  --accent-border: rgba(0,200,120,0.25);
+  --orange:        #FF6B00;
+  --orange-glow:   rgba(255,107,0,0.22);
+  --bg:            #080808;
+  --bg-2:          #111111;
+  --bg-3:          #161616;
+  --bg-4:          #1E1E1E;
+  --text:          #F0F0F0;
+  --text-2:        #909090;
+  --text-3:        #555555;
+  --border:        rgba(255,255,255,0.07);
+  --border-hover:  rgba(0,200,120,0.3);
+  --radius:        14px;
+  --ease:          cubic-bezier(0.4,0,0.2,1);
+  --t:             0.25s;
 }
 
-/* ========================================
-   기본 스타일
-   ======================================== */
-* {
-  box-sizing: border-box;
+/* ─── 키프레임 ─── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
+@keyframes accentLine {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ─── 기본 ─── */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
 body {
-  background-color: var(--bg-primary) !important;
-  color: var(--text-primary) !important;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
-  line-height: 1.6;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans KR', -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
   min-height: 100vh;
+  position: relative;
 }
 
-/* 링크 스타일 */
-a {
-  color: var(--text-secondary);
-  text-decoration: none;
-  transition: var(--transition);
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none; z-index: 0;
 }
+body > * { position: relative; z-index: 1; }
 
-a:hover {
-  color: var(--accent-green) !important;
+h1,h2,h3,h4 {
+  font-family: 'Barlow Condensed','Noto Sans KR',sans-serif;
+  font-weight: 700; letter-spacing: 0.02em; color: var(--text);
 }
+a { color: var(--text-2); text-decoration: none; transition: color var(--t) var(--ease); }
+a:hover { color: var(--accent) !important; }
 
-/* ========================================
-   Bootstrap 오버라이드
-   ======================================== */
-.bg-white {
-  background-color: var(--bg-primary) !important;
-}
-
-.bg-light {
-  background-color: var(--bg-secondary) !important;
-}
-
-.bg-dark {
-  background-color: var(--bg-secondary) !important;
-}
-
-.text-dark {
-  color: var(--text-primary) !important;
-}
-
-.text-muted {
-  color: var(--text-secondary) !important;
-}
-
-.text-white {
-  color: var(--text-primary) !important;
-}
-
-.small, small {
-  color: var(--text-secondary);
-}
+/* ─── Bootstrap 오버라이드 ─── */
+.bg-white  { background-color: var(--bg)   !important; }
+.bg-light  { background-color: var(--bg-2) !important; }
+.bg-dark   { background-color: var(--bg-2) !important; }
+.text-dark { color: var(--text)   !important; }
+.text-muted{ color: var(--text-2) !important; }
+.text-white{ color: var(--text)   !important; }
+.small, small { color: var(--text-2); }
 
 hr {
   border: none !important;
-  border-top: 1px solid var(--border-color) !important;
-  background-color: transparent !important;
-  color: var(--border-color) !important;
-  opacity: 1 !important;
-  margin: 0 !important;
+  border-top: 1px solid var(--border) !important;
+  background: transparent !important; opacity: 1 !important; margin: 0 !important;
 }
 
-/* ========================================
-   헤더
-   ======================================== */
+/* ─── 상단 라인 ─── */
+.header-accent-line {
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--orange) 55%, transparent 100%);
+  transform-origin: left;
+  animation: accentLine 0.7s var(--ease) forwards;
+}
+
+/* ─── 헤더 ─── */
 header {
-  background-color: var(--bg-primary) !important;
-  border-bottom: 1px solid var(--border-color);
+  position: sticky !important; top: 0; z-index: 200;
+  background: rgba(8,8,8,0.88) !important;
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border) !important;
 }
+header a { color: var(--text-2) !important; font-size: 0.85rem; font-weight: 500; }
+header a:hover { color: var(--accent) !important; }
+header span { color: var(--text-2) !important; }
 
-header a {
-  color: var(--text-secondary) !important;
-}
-
-header a:hover {
-  color: var(--accent-green) !important;
-}
-
-header span {
-  color: var(--text-secondary) !important;
-}
-
-/* ========================================
-   네비게이션
-   ======================================== */
+/* ─── 네비 ─── */
 nav {
-  background-color: var(--bg-secondary) !important;
-  border-bottom: 1px solid var(--border-color);
+  background: rgba(10,10,10,0.75) !important;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border) !important;
+  position: sticky; top: 57px; z-index: 199;
 }
-
 nav .nav-link {
-  color: var(--text-secondary) !important;
-  font-weight: 500;
-  padding: 0.75rem 1.25rem !important;
-  border-radius: 50px !important;
-  transition: var(--transition);
-  margin: 0 0.25rem;
+  font-family: 'Barlow Condensed','Noto Sans KR',sans-serif;
+  font-size: 1.05rem; font-weight: 600; letter-spacing: 0.05em;
+  color: var(--text-2) !important;
+  padding: 0.7rem 1.3rem !important;
+  border-radius: 8px !important; margin: 0 2px;
+  position: relative; transition: all var(--t) var(--ease);
 }
-
-nav .nav-link:hover {
-  color: var(--text-primary) !important;
-  background-color: var(--bg-card) !important;
+nav .nav-link::after {
+  content: ''; position: absolute; bottom: 5px; left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 55%; height: 2px; background: var(--accent);
+  border-radius: 2px; transition: transform var(--t) var(--ease);
 }
+nav .nav-link:hover { color: var(--text) !important; background: rgba(0,200,120,0.06) !important; }
+nav .nav-link:hover::after { transform: translateX(-50%) scaleX(0.8); }
+nav .nav-link.active { background: var(--accent) !important; color: #000 !important; font-weight: 700; }
+nav .nav-link.active::after { display: none; }
 
-nav .nav-link.active {
-  background-color: var(--accent-green) !important;
-  color: var(--bg-primary) !important;
-  font-weight: 600;
-}
-
-/* nav-pills 기본 스타일 제거 */
-.nav-pills .nav-link.active {
-  background-color: var(--accent-green) !important;
-}
-
-/* ========================================
-   메인 컨텐츠
-   ======================================== */
-main {
-  background-color: var(--bg-primary);
-}
-
-h3.fw-bold {
-  color: var(--text-primary) !important;
-  font-weight: 700;
-  font-size: 1.75rem;
-}
-
-/* ========================================
-   배너/캐러셀
-   ======================================== */
+/* ─── 배너/캐러셀 ─── */
 .f-carousel {
-  border-radius: 12px;
+  border-radius: 18px;
   overflow: hidden;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.7), 0 0 0 1px var(--border);
+}
+.f-carousel__slide img { border-radius: 18px; }
+
+/* ─── 섹션 헤딩 ─── */
+.section-heading {
+  font-family: 'Barlow Condensed',sans-serif;
+  font-size: 2rem; font-weight: 800; letter-spacing: 0.03em;
+  background: linear-gradient(135deg, var(--text) 40%, var(--accent) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+  padding-bottom: 0.45rem; position: relative;
+}
+.section-heading::after {
+  content: ''; position: absolute; bottom: 0; left: 0;
+  width: 40px; height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--orange));
+  border-radius: 2px;
 }
 
-.f-carousel__slide img {
-  border-radius: 12px;
-}
-
-/* ========================================
-   카드 (필터 영역)
-   ======================================== */
+/* ─── 필터 카드 ─── */
 .card {
-  background-color: var(--bg-card) !important;
-  border: 1px solid var(--border-color) !important;
-  border-radius: 12px !important;
+  background: rgba(22,22,22,0.82) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  transition: border-color var(--t) var(--ease), box-shadow var(--t) var(--ease);
+}
+.card:hover { border-color: var(--border-hover) !important; box-shadow: 0 8px 32px rgba(0,200,120,0.08) !important; }
+.card.shadow-sm { box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important; }
+.card-body { padding: 1.4rem; }
+
+.filter-card {
+  border-top: 2px solid var(--accent) !important;
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
 }
 
-.card-body {
-  padding: 1.5rem;
-}
-
-.card.shadow-sm {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-}
-
-/* 폼 라벨 */
 .form-label {
-  color: var(--text-secondary) !important;
-  font-weight: 600;
+  color: var(--text-2) !important; font-size: 0.78rem; font-weight: 600;
+  letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 0.4rem;
 }
-
-/* Select 박스 */
 .form-select {
-  background-color: var(--bg-secondary) !important;
-  border: 1px solid var(--border-color) !important;
-  color: var(--text-primary) !important;
-  border-radius: 8px;
-  padding: 0.625rem 1rem;
-  transition: var(--transition);
+  background: var(--bg-2) !important; border: 1px solid var(--border) !important;
+  color: var(--text) !important; border-radius: 8px; transition: all var(--t) var(--ease);
 }
-
 .form-select:focus {
-  background-color: var(--bg-secondary) !important;
-  border-color: var(--accent-green) !important;
-  box-shadow: 0 0 0 3px rgba(29, 185, 84, 0.25) !important;
-  color: var(--text-primary) !important;
+  background: var(--bg-2) !important; border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-glow) !important; color: var(--text) !important;
 }
+.form-select option { background: var(--bg-2); color: var(--text); }
 
-.form-select option {
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-}
-
-/* ========================================
-   날짜 필터 버튼
-   ======================================== */
+/* ─── 날짜 버튼 ─── */
 #dateFilters .btn-outline-secondary {
-  background-color: var(--bg-secondary) !important;
-  border: 1px solid var(--border-color) !important;
-  color: var(--text-secondary) !important;
-  border-radius: 50px !important;
-  padding: 0.5rem 1rem;
-  transition: var(--transition);
+  background: var(--bg-2) !important; border: 1px solid var(--border) !important;
+  color: var(--text-2) !important; border-radius: 8px !important;
+  padding: 0.4rem 0.85rem; font-size: 0.82rem; font-weight: 500;
+  transition: all var(--t) var(--ease);
 }
-
 #dateFilters .btn-outline-secondary:hover {
-  background-color: var(--bg-card-hover) !important;
-  border-color: var(--text-secondary) !important;
-  color: var(--text-primary) !important;
+  background: var(--bg-4) !important; color: var(--text) !important;
 }
-
 #dateFilters .btn-check:checked + .btn-outline-secondary {
-  background-color: var(--accent-green) !important;
-  border-color: var(--accent-green) !important;
-  color: var(--bg-primary) !important;
+  background: var(--accent) !important; border-color: var(--accent) !important;
+  color: #000 !important; font-weight: 700;
 }
 
-/* ========================================
-   매치 타입 버튼
-   ======================================== */
+/* ─── 매치 타입 버튼 ─── */
 .btn-outline-primary {
-  background-color: transparent !important;
-  border: 1px solid var(--border-color) !important;
-  color: var(--text-secondary) !important;
-  border-radius: 50px !important;
-  padding: 0.5rem 1rem;
-  transition: var(--transition);
+  background: transparent !important; border: 1px solid var(--border) !important;
+  color: var(--text-2) !important; border-radius: 8px !important;
+  padding: 0.4rem 0.85rem; font-size: 0.82rem; font-weight: 500;
+  transition: all var(--t) var(--ease);
 }
-
 .btn-outline-primary:hover {
-  background-color: var(--bg-card-hover) !important;
-  border-color: var(--accent-green) !important;
-  color: var(--accent-green) !important;
+  background: var(--accent-dim) !important; border-color: var(--accent) !important;
+  color: var(--accent) !important;
 }
-
 .btn-check:checked + .btn-outline-primary {
-  background-color: var(--accent-green) !important;
-  border-color: var(--accent-green) !important;
-  color: var(--bg-primary) !important;
+  background: var(--accent) !important; border-color: var(--accent) !important;
+  color: #000 !important; font-weight: 700;
 }
 
-/* ========================================
-   매치 카드
-   ======================================== */
+/* ─── 매치 카드 ─── */
 .match-card {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 1.25rem;
-  transition: var(--transition);
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0;
+  overflow: hidden;
   height: 100%;
   display: flex;
   flex-direction: column;
+  transition: all var(--t) var(--ease);
+  animation: cardIn 0.4s var(--ease) both;
 }
 
 .match-card:hover {
-  background-color: var(--bg-card-hover);
+  border-color: var(--border-hover);
+  box-shadow: 0 10px 36px rgba(0,200,120,0.12), 0 2px 8px rgba(0,0,0,0.5);
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
+
+/* 상단 컬러 바 (타입별) */
+.match-card-bar {
+  height: 3px;
+  width: 100%;
+  flex-shrink: 0;
+}
+.match-card.type-individual .match-card-bar { background: var(--orange); }
+.match-card.type-team       .match-card-bar { background: var(--accent); }
+.match-card.type-rent       .match-card-bar { background: #A78BFA; }
+
+.match-card-body {
+  padding: 1.1rem 1.2rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* stagger 딜레이 */
+.match-card.delay-0 { animation-delay: 0.00s; }
+.match-card.delay-1 { animation-delay: 0.07s; }
+.match-card.delay-2 { animation-delay: 0.14s; }
+.match-card.delay-3 { animation-delay: 0.21s; }
+.match-card.delay-4 { animation-delay: 0.28s; }
+.match-card.delay-5 { animation-delay: 0.35s; }
+.match-card.delay-6 { animation-delay: 0.42s; }
+.match-card.delay-7 { animation-delay: 0.49s; }
 
 .match-card .badge {
-  font-weight: 600;
-  padding: 0.375rem 0.75rem;
-  border-radius: 50px;
-  font-size: 0.75rem;
+  font-weight: 700; padding: 0.28rem 0.6rem;
+  border-radius: 5px; font-size: 0.72rem; letter-spacing: 0.02em;
 }
-
-.match-card .badge-individual {
-  background-color: #ffd2d7 !important;
-  color: #121212 !important;
-}
-
-.match-card .badge-team {
-  background-color: #ffc862 !important;
-  color: #121212 !important;
-}
-
-.match-card .badge-rent {
-  background-color: #c4b1d4 !important;
-  color: #121212 !important;
-}
+.match-card .badge-individual { background: var(--orange) !important; color: #000 !important; }
+.match-card .badge-team       { background: var(--accent) !important; color: #000 !important; }
+.match-card .badge-rent       { background: #A78BFA !important;       color: #000 !important; }
 
 .match-card .match-time {
-  color: var(--accent-green);
-  font-weight: 700;
-  font-size: 1rem;
+  font-family: 'Barlow Condensed', monospace;
+  font-weight: 700; font-size: 1.05rem; letter-spacing: 0.06em;
+  color: var(--accent);
 }
 
 .match-card .match-stadium {
-  color: var(--text-primary);
-  font-weight: 700;
-  font-size: 1.125rem;
-  margin: 0.75rem 0 0.5rem;
+  font-family: 'Barlow Condensed','Noto Sans KR',sans-serif;
+  font-weight: 700; font-size: 1.15rem; letter-spacing: 0.02em;
+  color: var(--text); margin: 0.65rem 0 0.35rem;
 }
 
 .match-card .match-info {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  margin-bottom: 1rem;
+  color: var(--text-2); font-size: 0.83rem; margin-bottom: 0.9rem;
 }
 
 .match-card .match-status {
-  color: var(--text-primary);
-  font-weight: 600;
+  color: var(--text-2); font-size: 0.82rem; font-weight: 500;
 }
-
 .match-card .match-status .count {
-  color: var(--accent-green);
+  color: var(--accent); font-weight: 700; font-size: 0.9rem;
 }
 
 /* 상세보기 버튼 */
 .btn-detail {
-  background-color: var(--accent-green) !important;
-  border: none !important;
-  color: var(--bg-primary) !important;
-  font-weight: 600;
-  padding: 0.5rem 1rem;
-  border-radius: 50px;
-  transition: var(--transition);
-  text-decoration: none;
-  display: inline-block;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark)) !important;
+  border: none !important; color: #000 !important;
+  font-weight: 700; font-size: 0.82rem;
+  padding: 0.4rem 0.9rem; border-radius: 7px;
+  transition: all var(--t) var(--ease);
+  text-decoration: none; display: inline-block; letter-spacing: 0.02em;
 }
-
 .btn-detail:hover {
-  background-color: var(--accent-green-hover) !important;
-  transform: scale(1.04);
-  color: var(--bg-primary) !important;
+  box-shadow: 0 4px 14px var(--accent-glow);
+  transform: translateY(-1px); color: #000 !important;
+  filter: brightness(1.08);
 }
 
-/* 기본 primary 버튼 */
+/* primary 버튼 */
 .btn-primary {
-  background-color: var(--accent-green) !important;
-  border-color: var(--accent-green) !important;
-  color: var(--bg-primary) !important;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark)) !important;
+  border: none !important; color: #000 !important; font-weight: 700;
+  border-radius: 8px; transition: all var(--t) var(--ease);
 }
+.btn-primary:hover { box-shadow: 0 4px 18px var(--accent-glow); transform: translateY(-1px); }
 
-.btn-primary:hover {
-  background-color: var(--accent-green-hover) !important;
-  border-color: var(--accent-green-hover) !important;
-}
+/* ─── 스피너 ─── */
+.spinner-border.text-primary { color: var(--accent) !important; }
 
-/* ========================================
-   로딩 스피너
-   ======================================== */
-.spinner-border.text-primary {
-  color: var(--accent-green) !important;
-}
-
-/* ========================================
-   푸터
-   ======================================== */
+/* ─── 푸터 ─── */
 footer {
-  background-color: var(--bg-secondary) !important;
-  border-top: 1px solid var(--border-color);
+  background: var(--bg-2) !important; border-top: none !important;
+  position: relative; overflow: hidden;
 }
-
-footer p {
-  color: var(--text-secondary) !important;
+footer::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--orange), transparent);
 }
+footer p { color: var(--text-2) !important; }
 
-/* ========================================
-   스크롤바
-   ======================================== */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
+/* ─── 스크롤바 ─── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg-2); }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
 
-::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--text-muted);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
-}
-
-/* ========================================
-   반응형
-   ======================================== */
+/* ─── 반응형 ─── */
 @media (max-width: 768px) {
-  h3.fw-bold {
-    font-size: 1.5rem;
-  }
-
-  .match-card {
-    padding: 1rem;
-  }
-
-  nav .nav-link {
-    padding: 0.5rem 0.75rem !important;
-    font-size: 0.875rem;
-  }
+  .section-heading { font-size: 1.65rem; }
+  .match-card-body { padding: 0.9rem 1rem 1rem; }
+  nav .nav-link { padding: 0.5rem 0.8rem !important; font-size: 0.95rem; }
 }

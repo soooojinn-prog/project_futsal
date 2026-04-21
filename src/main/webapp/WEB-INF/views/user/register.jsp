@@ -2,6 +2,7 @@
 <jsp:include page="/WEB-INF/views/common/header.jsp">
   <jsp:param name="title" value="회원가입"/>
   <jsp:param name="menu" value="user"/>
+  <jsp:param name="pageCss" value="user.css"/>
 </jsp:include>
 <script>
   function validateForm() {
@@ -25,66 +26,64 @@
     return true;
   }
 </script>
-<div class="row justify-content-center">
-  <div class="col-lg-6">
-    <div class="card shadow-sm">
-      <div class="card-header bg-primary text-white">
-        <h4 class="mb-0 fw-bold">회원가입</h4>
-      </div>
-      <div class="card-body">
-        <form action="${pageContext.request.contextPath}/user/register" method="post" onsubmit="return validateForm()">
-          <div class="mb-3">
-            <label for="email" class="form-label fw-bold">이메일</label>
-            <input type="email" class="form-control" id="email" name="email" required>
-          </div>
-          <div class="mb-3">
-            <label for="password" class="form-label fw-bold">비밀번호</label>
-            <input type="password" class="form-control" id="password" name="password" required>
-          </div>
-          <div class="mb-3">
-            <label for="confirmPassword" class="form-label fw-bold">비밀번호 확인</label>
-            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
-          </div>
-          <div class="mb-3">
-            <label for="nickname" class="form-label fw-bold">닉네임</label>
-            <input type="text" class="form-control" id="nickname" name="nickname" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-bold">성별</label>
-            <div class="d-flex gap-4">
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="gender" value="MALE" id="genderMale" required>
-                <label class="form-check-label" for="genderMale">남성</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="gender" value="FEMALE" id="genderFemale" required>
-                <label class="form-check-label" for="genderFemale">여성</label>
-              </div>
+<div class="auth-wrapper">
+  <div class="auth-card card">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0 fw-bold">회원가입</h4>
+    </div>
+    <div class="card-body p-4">
+      <form action="${pageContext.request.contextPath}/user/register" method="post" onsubmit="return validateForm()">
+        <div class="mb-3">
+          <label for="email" class="form-label">이메일</label>
+          <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">비밀번호</label>
+          <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+        <div class="mb-3">
+          <label for="confirmPassword" class="form-label">비밀번호 확인</label>
+          <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+        </div>
+        <div class="mb-3">
+          <label for="nickname" class="form-label">닉네임</label>
+          <input type="text" class="form-control" id="nickname" name="nickname" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">성별</label>
+          <div class="d-flex gap-4">
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="gender" value="MALE" id="genderMale" required>
+              <label class="form-check-label" for="genderMale">남성</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="gender" value="FEMALE" id="genderFemale" required>
+              <label class="form-check-label" for="genderFemale">여성</label>
             </div>
           </div>
-          <div class="mb-3">
-            <label for="preferredPosition" class="form-label fw-bold">선호 포지션</label>
-            <select class="form-select" id="preferredPosition" name="preferredPosition">
-              <option value="">선택안함</option>
-              <option value="GK">골키퍼 (GK)</option>
-              <option value="DF">수비수 (DF)</option>
-              <option value="MF">미드필더 (MF)</option>
-              <option value="FW">공격수 (FW)</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="introduction" class="form-label fw-bold">자기소개 (선택사항)</label>
-            <textarea class="form-control" id="introduction" name="introduction" rows="3" placeholder="자기소개를 입력하세요..."></textarea>
-          </div>
-          <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary">회원가입하기</button>
-          </div>
-        </form>
-      </div>
-      <div class="card-footer text-center bg-transparent">
-        <span class="text-muted">이미 계정이 있으신가요?</span>
-        <a href="${pageContext.request.contextPath}/user/login" class="ms-2">로그인하기</a>
-      </div>
+        </div>
+        <div class="mb-3">
+          <label for="preferredPosition" class="form-label">선호 포지션</label>
+          <select class="form-select" id="preferredPosition" name="preferredPosition">
+            <option value="">선택안함</option>
+            <option value="GK">골키퍼 (GK)</option>
+            <option value="DF">수비수 (DF)</option>
+            <option value="MF">미드필더 (MF)</option>
+            <option value="FW">공격수 (FW)</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label for="introduction" class="form-label">자기소개 (선택사항)</label>
+          <textarea class="form-control" id="introduction" name="introduction" rows="3" placeholder="자기소개를 입력하세요..."></textarea>
+        </div>
+        <div class="d-grid">
+          <button type="submit" class="btn btn-primary btn-lg">회원가입하기</button>
+        </div>
+      </form>
+    </div>
+    <div class="card-footer text-center">
+      <span class="text-muted small">이미 계정이 있으신가요?</span>
+      <a href="${pageContext.request.contextPath}/user/login" class="ms-2 small">로그인하기</a>
     </div>
   </div>
 </div>

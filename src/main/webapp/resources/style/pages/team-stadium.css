@@ -1,0 +1,137 @@
+/* ── 팀 & 구장 스타일 ── */
+
+/* 목록 카드 */
+.ts-card {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  animation: fadeInUp 0.4s cubic-bezier(0.4,0,0.2,1) both;
+}
+.ts-card:hover {
+  border-color: rgba(0,200,120,0.3);
+  box-shadow: 0 10px 36px rgba(0,200,120,0.1);
+  transform: translateY(-4px);
+}
+
+.ts-card-accent-bar {
+  height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+}
+.ts-card-accent-bar.orange { background: linear-gradient(90deg, var(--orange), #ff8c3a); }
+.ts-card-accent-bar.purple { background: linear-gradient(90deg, #A78BFA, #7C3AED); }
+
+.ts-card-body {
+  padding: 1.1rem 1.2rem 1.2rem;
+  flex: 1; display: flex; flex-direction: column;
+}
+
+.ts-card-name {
+  font-family: 'Barlow Condensed','Noto Sans KR',sans-serif;
+  font-weight: 700; font-size: 1.15rem; letter-spacing: 0.02em;
+  color: var(--text); margin-bottom: 0.5rem;
+}
+
+.ts-card-info {
+  color: var(--text-2); font-size: 0.83rem;
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+}
+
+.ts-card-tag {
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: 5px; padding: 0.15rem 0.5rem;
+  font-size: 0.75rem; color: var(--text-2); font-weight: 500;
+}
+
+.ts-card-footer {
+  padding: 0.75rem 1.2rem;
+  border-top: 1px solid var(--border);
+  background: rgba(0,0,0,0.2);
+}
+
+/* stagger */
+.ts-card.delay-0 { animation-delay: 0.00s; }
+.ts-card.delay-1 { animation-delay: 0.07s; }
+.ts-card.delay-2 { animation-delay: 0.14s; }
+.ts-card.delay-3 { animation-delay: 0.21s; }
+.ts-card.delay-4 { animation-delay: 0.28s; }
+.ts-card.delay-5 { animation-delay: 0.35s; }
+
+/* 카드 서브텍스트 */
+.ts-card-sub {
+  font-size: 0.78rem; color: var(--text-2);
+  margin-top: 0.4rem;
+}
+
+/* 메인 페이지 히어로 */
+.ts-main-hero {
+  min-height: calc(100vh - 160px);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 3rem 1rem;
+  position: relative;
+}
+.ts-main-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(0,200,120,0.05) 0%, transparent 65%);
+  pointer-events: none;
+}
+.ts-main-hero-title {
+  font-family: 'Barlow Condensed','Noto Sans KR',sans-serif;
+  font-size: 2.5rem; font-weight: 800;
+  background: linear-gradient(135deg, #F0F0F0 30%, var(--accent) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 0.5rem;
+}
+.ts-main-hero-sub { color: var(--text-2); font-size: 1rem; }
+
+/* 프로필 페이지 (독립형 카드) */
+.ts-profile-card {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.ts-profile-hero {
+  padding: 1.8rem 1.5rem 1.4rem;
+  background: linear-gradient(135deg, rgba(0,200,120,0.08), rgba(0,166,99,0.03));
+  border-bottom: 1px solid rgba(0,200,120,0.12);
+}
+.ts-profile-name {
+  font-family: 'Barlow Condensed','Noto Sans KR',sans-serif;
+  font-weight: 800; font-size: 1.8rem; color: var(--text);
+  margin-bottom: 0.25rem;
+}
+.ts-profile-sub { color: var(--text-2); font-size: 0.9rem; }
+.ts-profile-body { padding: 0.5rem 1.5rem 1rem; }
+.ts-profile-footer {
+  padding: 1rem 1.5rem; border-top: 1px solid var(--border);
+  background: rgba(0,0,0,0.2); display: flex; gap: 0.75rem;
+}
+
+.ts-info-row {
+  display: flex; align-items: flex-start;
+  padding: 0.75rem 0; border-bottom: 1px solid var(--border);
+}
+.ts-info-row:last-child { border-bottom: none; }
+.ts-info-label {
+  width: 110px; flex-shrink: 0;
+  color: var(--text-2); font-size: 0.8rem;
+  font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.ts-info-value { color: var(--text); font-weight: 500; font-size: 0.93rem; }
+
+/* 구장 대여 시간 선택 */
+.rent-time-btn .btn {
+  min-width: 90px; text-align: center;
+  font-size: 0.85rem; font-weight: 600;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

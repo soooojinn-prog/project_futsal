@@ -1,17 +1,116 @@
-/* 순위 메달 색상 */
+/* ── 랭킹 페이지 스타일 ── */
+
+/* TOP 3 포디움 */
+.podium-section {
+  margin-bottom: 2.5rem;
+}
+
+.podium-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  align-items: end;
+}
+
+@media (max-width: 576px) {
+  .podium-cards { grid-template-columns: 1fr; }
+}
+
+.podium-card {
+  border-radius: 16px;
+  padding: 1.5rem 1.2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.podium-card:hover { transform: translateY(-6px); }
+
+/* 1위 */
+.podium-card.rank-1 {
+  background: linear-gradient(160deg, rgba(255,215,0,0.13) 0%, rgba(255,180,0,0.04) 100%);
+  border: 1px solid rgba(255,215,0,0.4);
+  box-shadow: 0 0 28px rgba(255,215,0,0.18), inset 0 1px 0 rgba(255,215,0,0.2);
+  animation: pulseGold 2.5s ease-in-out infinite;
+  order: 2;
+}
+/* 2위 */
+.podium-card.rank-2 {
+  background: linear-gradient(160deg, rgba(192,192,192,0.1) 0%, rgba(160,160,160,0.04) 100%);
+  border: 1px solid rgba(192,192,192,0.35);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  order: 1;
+}
+/* 3위 */
+.podium-card.rank-3 {
+  background: linear-gradient(160deg, rgba(205,127,50,0.1) 0%, rgba(180,100,30,0.04) 100%);
+  border: 1px solid rgba(205,127,50,0.35);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  order: 3;
+}
+
+@keyframes pulseGold {
+  0%,100% { box-shadow: 0 0 18px rgba(255,215,0,0.18), inset 0 1px 0 rgba(255,215,0,0.2); }
+  50%     { box-shadow: 0 0 36px rgba(255,215,0,0.4),  inset 0 1px 0 rgba(255,215,0,0.3); }
+}
+
+.podium-crown {
+  font-size: 1.8rem; margin-bottom: 0.3rem; display: block;
+}
+
+.podium-rank-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 2.2rem; line-height: 1;
+  display: block; margin-bottom: 0.5rem;
+}
+.rank-1 .podium-rank-num { color: #FFD700; text-shadow: 0 0 12px rgba(255,215,0,0.5); }
+.rank-2 .podium-rank-num { color: #C0C0C0; }
+.rank-3 .podium-rank-num { color: #CD7F32; }
+
+.podium-name {
+  font-weight: 700; font-size: 1rem; color: #F0F0F0;
+  margin-bottom: 0.3rem; word-break: break-all;
+}
+
+.podium-meta {
+  font-size: 0.78rem; color: #909090; margin-bottom: 0.5rem;
+}
+
+.podium-point {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 1.4rem;
+  display: block;
+}
+.rank-1 .podium-point { color: #FFD700; }
+.rank-2 .podium-point { color: #C0C0C0; }
+.rank-3 .podium-point { color: #CD7F32; }
+
+.podium-point-label {
+  font-size: 0.72rem; color: #666; letter-spacing: 0.05em; text-transform: uppercase;
+}
+
+/* 1위 카드 크기 강조 */
+.podium-card.rank-1 {
+  padding: 2rem 1.2rem;
+}
+.podium-card.rank-1 .podium-rank-num { font-size: 2.8rem; }
+.podium-card.rank-1 .podium-name { font-size: 1.1rem; }
+
+/* 일반 랭킹 테이블 */
 .rank-number {
-  font-weight: bold;
-  font-size: 1.1em;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: 1.15rem;
 }
+.gold   { color: #FFD700; text-shadow: 0 0 8px rgba(255,215,0,0.4); }
+.silver { color: #C0C0C0; }
+.bronze { color: #CD7F32; }
 
-.gold {
-  color: #FFD700;
+/* 섹션 구분선 */
+.rank-divider {
+  display: flex; align-items: center; gap: 1rem;
+  margin: 1.5rem 0;
+  color: #555; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
 }
-
-.silver {
-  color: #C0C0C0;
-}
-
-.bronze {
-  color: #CD7F32;
+.rank-divider::before, .rank-divider::after {
+  content: ''; flex: 1; height: 1px; background: #242424;
 }

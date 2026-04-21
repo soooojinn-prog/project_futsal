@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const offset = d.getTimezoneOffset() * 60000;
     const localISOTime = (new Date(d - offset)).toISOString().split('T')[0];
 
-    // 요일 추가
     const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
     const dayOfWeek = weekDays[d.getDay()];
     const displayStr = `${d.getMonth() + 1}/${d.getDate()} (${dayOfWeek})`;
@@ -48,16 +47,21 @@ document.addEventListener('DOMContentLoaded', () => {
     3: '고수',
   };
 
+  function getCardTypeClass(matchType) {
+    switch (matchType) {
+      case 'INDIVIDUAL': return 'type-individual';
+      case 'TEAM':       return 'type-team';
+      case 'RENT':       return 'type-rent';
+      default:           return 'type-individual';
+    }
+  }
+
   function getBadgeClass(matchType) {
     switch (matchType) {
-      case 'INDIVIDUAL':
-        return 'badge-individual';
-      case 'TEAM':
-        return 'badge-team';
-      case 'RENT':
-        return 'badge-rent';
-      default:
-        return 'badge-individual';
+      case 'INDIVIDUAL': return 'badge-individual';
+      case 'TEAM':       return 'badge-team';
+      case 'RENT':       return 'badge-rent';
+      default:           return 'badge-individual';
     }
   }
 
@@ -67,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const typeUI = document.querySelector('input[name="matchType"]:checked').value;
     const type = matchTypeMapReverse[typeUI] || typeUI;
 
-    // 로딩 상태 표시
     matchList.innerHTML = `
       <div class="col-12 text-center py-5">
         <div class="spinner-border text-primary" role="status"></div>
@@ -76,19 +79,17 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
 
     fetch(`${contextPath}/api/matches?date=${date}&region=${region}&type=${type}`)
-        .then(res => res.json())
-        .then(data => {
-          renderMatches(data);
-        })
-        .catch(err => {
-          matchList.innerHTML = `
+      .then(res => res.json())
+      .then(data => renderMatches(data))
+      .catch(() => {
+        matchList.innerHTML = `
           <div class="col-12">
             <div class="match-card text-center py-4">
               <p class="text-muted mb-0">데이터를 불러오는데 실패했습니다.</p>
             </div>
           </div>
         `;
-        });
+      });
   }
 
   function renderMatches(matches) {
@@ -103,17 +104,19 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    matchList.innerHTML = matches.map(match => {
+    matchList.innerHTML = matches.map((match, idx) => {
       const typeLabel = matchTypeMap[match.matchType] || match.matchType;
       const displayTime = match.startHour ? match.startHour.substring(0, 5) : '00:00';
       const gender = matchGenderMap[match.gender] || match.gender;
       const minGrade = matchGradeMap[match.minGrade] ?? match.minGrade;
       const maxGrade = matchGradeMap[match.maxGrade] ?? match.maxGrade;
       const badgeClass = getBadgeClass(match.matchType);
+      const typeClass = getCardTypeClass(match.matchType);
+      const delayClass = `delay-${Math.min(idx, 7)}`;
 
       return `
         <div class="col-12 col-md-6 col-lg-4">
-          <div class="match-card">
+          <div class="match-card ${typeClass} ${delayClass}">
             <div class="d-flex justify-content-between align-items-start">
               <span class="badge ${badgeClass}">${typeLabel}</span>
               <span class="match-time">${displayTime}</span>

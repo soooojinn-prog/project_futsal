@@ -9,12 +9,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>렛츠풋살</title>
   <script>const contextPath = '${pageContext.request.contextPath}';</script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/style/bootstrap/bootstrap.min.css"/>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/style/carousel/carousel.css"/>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/style/carousel/carousel.dots.css"/>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/style/home/home.css"/>
 </head>
 <body>
+  <!-- 상단 액센트 라인 -->
+  <div class="header-accent-line"></div>
   <!-- 최상단 메뉴 -->
   <header class="py-2 bg-white">
     <div class="container">
@@ -69,7 +74,7 @@
   </nav>
   <!-- 메인 -->
   <main class="container py-4">
-    <section class="container-fluid p-0">
+    <section class="container-fluid p-0 animate-fade-up visible">
       <div class="f-carousel w-100" id="banners" role="region">
         <div class="f-carousel__slide">
           <img src="${pageContext.request.contextPath}/resources/image/banner/banner_01.jpg" class="img-fluid d-block mx-auto" alt="Banner 1">
@@ -93,8 +98,8 @@
     </section>
     <!-- 임박한 매치 -->
     <div class="container my-5">
-      <h3 class="fw-bold mb-4">임박한 매치</h3>
-      <div class="card shadow-sm mb-4">
+      <h3 class="section-heading mb-4">임박한 매치</h3>
+      <div class="card shadow-sm mb-4 animate-fade-up" data-observe>
         <div class="card-body">
           <div id="dateFilters" class="d-flex gap-2 overflow-auto pb-3 mb-3"></div>
           <div class="row g-3">
@@ -141,8 +146,8 @@
   <!-- 푸터 -->
   <footer class="bg-dark text-white py-4 mt-auto">
     <div class="container text-center">
-      <p class="mb-1">Let's Futsal - 풋살 매칭 플랫폼</p>
-      <p class="mb-0 small text-muted">&copy; 2025 Let's Futsal. All rights reserved.</p>
+      <p class="mb-1 fw-bold">LET'S FUTSAL</p>
+      <p class="mb-0 small text-muted">풋살 매칭 플랫폼 &nbsp;|&nbsp; &copy; 2025 Let's Futsal. All rights reserved.</p>
     </div>
   </footer>
   <!-- 스크립트 -->
@@ -154,10 +159,19 @@
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const container = document.getElementById("banners");
-      const option = {
-        infinite: true,
-      };
-      Carousel(container, option, {Autoscroll, Dots}).init();
+      Carousel(container, { infinite: true }, { Autoscroll, Dots }).init();
+
+      // Intersection Observer for scroll animations
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+
+      document.querySelectorAll('[data-observe]').forEach(el => observer.observe(el));
     });
   </script>
 </body>

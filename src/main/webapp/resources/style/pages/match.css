@@ -1,0 +1,171 @@
+/* ── 매치 페이지 스타일 ── */
+
+/* 페이지 헤더 */
+.page-hero h2 {
+  font-size: 2rem; font-weight: 800;
+  background: linear-gradient(135deg, #F0F0F0 30%, var(--accent) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 필터 카드 */
+.filter-card {
+  border-top: 2px solid var(--accent) !important;
+}
+
+/* 매치 카드 (목록) */
+.match-list-card {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  animation: fadeInUp 0.4s cubic-bezier(0.4,0,0.2,1) both;
+}
+
+.match-list-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 10px 36px rgba(0,200,120,0.12);
+  transform: translateY(-4px);
+}
+
+.match-list-card-bar {
+  height: 3px; width: 100%; flex-shrink: 0;
+}
+.match-list-card.type-individual .match-list-card-bar { background: var(--orange); }
+.match-list-card.type-team       .match-list-card-bar { background: var(--accent); }
+.match-list-card.type-rent       .match-list-card-bar { background: #A78BFA; }
+
+.match-list-card-body {
+  padding: 1.1rem 1.2rem 1.2rem;
+  flex: 1; display: flex; flex-direction: column;
+}
+
+.match-list-card .badge-individual { background: var(--orange) !important; color: #000 !important; }
+.match-list-card .badge-team       { background: var(--accent) !important; color: #000 !important; }
+.match-list-card .badge-rent       { background: #A78BFA !important;       color: #000 !important; }
+
+/* stagger */
+.match-list-card.delay-0 { animation-delay: 0.00s; }
+.match-list-card.delay-1 { animation-delay: 0.07s; }
+.match-list-card.delay-2 { animation-delay: 0.14s; }
+.match-list-card.delay-3 { animation-delay: 0.21s; }
+.match-list-card.delay-4 { animation-delay: 0.28s; }
+.match-list-card.delay-5 { animation-delay: 0.35s; }
+
+/* 매치 타임 */
+.match-list-time {
+  font-family: 'Barlow Condensed', monospace;
+  font-weight: 700; font-size: 1.05rem; color: var(--accent); letter-spacing: 0.06em;
+}
+.match-list-stadium {
+  font-family: 'Barlow Condensed','Noto Sans KR',sans-serif;
+  font-weight: 700; font-size: 1.15rem; color: var(--text);
+  margin: 0.6rem 0 0.3rem;
+}
+.match-list-info { color: var(--text-2); font-size: 0.83rem; margin-bottom: 0.8rem; }
+
+/* 용량 progress bar */
+.match-capacity-bar {
+  height: 4px;
+  background: var(--bg-2);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+.match-capacity-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+  border-radius: 2px;
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+.match-capacity-bar-fill.almost-full {
+  background: linear-gradient(90deg, var(--orange), #ff8c3a);
+}
+
+.match-list-status { color: var(--text-2); font-size: 0.82rem; font-weight: 500; }
+.match-list-status .count { color: var(--accent); font-weight: 700; }
+
+/* 상세 페이지 */
+.match-detail-info-row {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.match-detail-info-row:last-child { border-bottom: none; }
+.match-detail-label {
+  width: 120px; flex-shrink: 0;
+  color: var(--text-2); font-size: 0.82rem;
+  font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.match-detail-value { color: var(--text); font-weight: 500; }
+
+/* 매치 상세 카드 */
+.match-detail-card {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.match-detail-header {
+  padding: 1.4rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, rgba(0,200,120,0.06), transparent);
+}
+.match-detail-title {
+  font-family: 'Barlow Condensed','Noto Sans KR',sans-serif;
+  font-weight: 800; font-size: 1.5rem;
+  color: var(--text); margin: 0.5rem 0 0;
+}
+.match-detail-body { padding: 0.5rem 1.5rem 1rem; }
+.match-detail-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+  background: rgba(0,0,0,0.2);
+}
+
+.match-info-row {
+  display: flex; align-items: center;
+  padding: 0.75rem 0; border-bottom: 1px solid var(--border);
+}
+.match-info-row:last-child { border-bottom: none; }
+.match-info-label {
+  width: 110px; flex-shrink: 0;
+  color: var(--text-2); font-size: 0.8rem;
+  font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.match-info-value { color: var(--text); font-weight: 500; }
+
+/* 참여 현황 카드 */
+.match-join-card {
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.4rem;
+  position: sticky;
+  top: 120px;
+}
+.match-join-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; font-size: 1.1rem;
+  color: var(--text); margin-bottom: 1rem;
+}
+.match-capacity-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+  border-radius: 2px;
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+.match-capacity-text {
+  display: flex; justify-content: space-between;
+  font-size: 0.82rem; color: var(--text-2); margin-top: 0.4rem;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

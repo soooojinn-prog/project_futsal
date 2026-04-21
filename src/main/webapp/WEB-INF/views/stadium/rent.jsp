@@ -3,6 +3,7 @@
 <jsp:include page="/WEB-INF/views/common/header.jsp">
   <jsp:param name="title" value="구장 대여"/>
   <jsp:param name="menu" value="stadium"/>
+  <jsp:param name="pageCss" value="team-stadium.css"/>
 </jsp:include>
 <script>
   function confirmRent() {
@@ -24,16 +25,17 @@
     return false;
   }
 </script>
+<div class="page-hero">
+  <h2>구장 대여 예약</h2>
+  <div class="page-hero-bar"></div>
+</div>
 <div class="row justify-content-center">
   <div class="col-lg-6">
     <div class="card shadow-sm">
-      <div class="card-header bg-success text-white">
-        <h4 class="mb-0 fw-bold">구장 대여 예약</h4>
-      </div>
-      <div class="card-body">
-        <div class="mb-4">
-          <p class="mb-1"><strong>구장:</strong> ${stadium.name}</p>
-          <p class="mb-0"><strong>운영시간:</strong> ${stadium.startHour} ~ ${stadium.endHour}</p>
+      <div class="card-body p-4">
+        <div class="mb-4 p-3 rounded" style="background:rgba(0,200,120,0.05);border:1px solid rgba(0,200,120,0.15)">
+          <p class="mb-1"><strong style="color:var(--accent)">구장:</strong> ${stadium.name}</p>
+          <p class="mb-0"><strong style="color:var(--accent)">운영시간:</strong> ${stadium.startHour} ~ ${stadium.endHour}</p>
         </div>
         <form action="${pageContext.request.contextPath}/stadium/rent/confirm" method="post" <c:if test="${not empty loginUser}">onsubmit="return confirmRent()"</c:if>>
           <input type="hidden" name="stadiumId" value="${stadium.stadiumId}">
@@ -54,7 +56,7 @@
                 <button type="button" class="btn btn-secondary" disabled>로그인 후 대여 가능</button>
               </c:when>
               <c:otherwise>
-                <button type="submit" class="btn btn-success">대여 예약하기</button>
+                <button type="submit" class="btn btn-primary">대여 예약하기</button>
               </c:otherwise>
             </c:choose>
             <a href="${pageContext.request.contextPath}/stadium/list" class="btn btn-outline-secondary">구장 목록으로</a>

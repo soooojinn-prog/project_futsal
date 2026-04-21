@@ -4,17 +4,21 @@
 <jsp:include page="../common/header.jsp">
   <jsp:param name="title" value="자유게시판"/>
   <jsp:param name="menu" value="board"/>
+  <jsp:param name="pageCss" value="board.css"/>
 </jsp:include>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h2 class="fw-bold mb-0">자유게시판</h2>
+  <div class="page-hero mb-0">
+    <h2>자유게시판</h2>
+    <div class="page-hero-bar"></div>
+  </div>
   <a href="${pageContext.request.contextPath}/free/write" class="btn btn-primary">글쓰기</a>
 </div>
 
 <!-- 게시글 목록 -->
 <div class="card shadow-sm">
   <div class="table-responsive">
-    <table class="table table-hover mb-0">
+    <table class="table table-hover board-table mb-0">
       <thead class="table-dark">
         <tr>
           <th width="8%">번호</th>
@@ -97,7 +101,7 @@
 </nav>
 
 <!-- 검색 -->
-<div class="card mt-4">
+<div class="card search-card mt-4">
   <div class="card-body">
     <form action="${pageContext.request.contextPath}/free/search" method="get" class="row g-2 justify-content-center">
       <div class="col-auto">

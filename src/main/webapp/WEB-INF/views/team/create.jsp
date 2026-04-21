@@ -3,6 +3,7 @@
 <jsp:include page="/WEB-INF/views/common/header.jsp">
   <jsp:param name="title" value="팀 생성"/>
   <jsp:param name="menu" value="team"/>
+  <jsp:param name="pageCss" value="team-stadium.css"/>
 </jsp:include>
 <script>
   function gradeToText(value) {
@@ -49,20 +50,21 @@
     return false;
   }
 </script>
+<div class="page-hero">
+  <h2>팀 생성</h2>
+  <div class="page-hero-bar"></div>
+</div>
 <div class="row justify-content-center">
   <div class="col-lg-6">
     <div class="card shadow-sm">
-      <div class="card-header bg-success text-white">
-        <h4 class="mb-0 fw-bold">팀 생성</h4>
-      </div>
-      <div class="card-body">
+      <div class="card-body p-4">
         <form action="${pageContext.request.contextPath}/team/create" method="post" onsubmit="return confirmCreate()">
           <div class="mb-3">
-            <label class="form-label fw-bold">팀 이름</label>
+            <label class="form-label">팀 이름</label>
             <input type="text" name="teamName" class="form-control" required>
           </div>
           <div class="mb-3">
-            <label class="form-label fw-bold">성별</label>
+            <label class="form-label">성별</label>
             <div class="d-flex gap-3">
               <div class="form-check">
                 <input class="form-check-input" type="radio" name="gender" value="BOTH" id="genderBoth">
@@ -80,7 +82,7 @@
           </div>
           <div class="row mb-3">
             <div class="col-6">
-              <label class="form-label fw-bold">최소 등급</label>
+              <label class="form-label">최소 등급</label>
               <select name="minGrade" class="form-select">
                 <option value="0">입문</option>
                 <option value="1">초보</option>
@@ -89,7 +91,7 @@
               </select>
             </div>
             <div class="col-6">
-              <label class="form-label fw-bold">최대 등급</label>
+              <label class="form-label">최대 등급</label>
               <select name="maxGrade" class="form-select">
                 <option value="0">입문</option>
                 <option value="1">초보</option>
@@ -99,7 +101,7 @@
             </div>
           </div>
           <div class="mb-3">
-            <label class="form-label fw-bold">지역</label>
+            <label class="form-label">지역</label>
             <select name="region" class="form-select">
               <option>서울</option>
               <option>경기</option>
@@ -110,12 +112,12 @@
               <option>제주</option>
             </select>
           </div>
-          <div class="mb-3">
-            <label class="form-label fw-bold">팀 소개</label>
+          <div class="mb-4">
+            <label class="form-label">팀 소개</label>
             <textarea name="introduction" class="form-control" rows="4"></textarea>
           </div>
           <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-success">생성하기</button>
+            <button type="submit" class="btn btn-primary">생성하기</button>
             <a href="${pageContext.request.contextPath}/team" class="btn btn-outline-secondary">취소</a>
           </div>
         </form>

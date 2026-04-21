@@ -3,22 +3,21 @@
 <jsp:include page="../common/header.jsp">
   <jsp:param name="title" value="글쓰기"/>
   <jsp:param name="menu" value="board"/>
+  <jsp:param name="pageCss" value="board.css"/>
 </jsp:include>
 
 <div class="mb-4">
-  <a href="${pageContext.request.contextPath}/free" class="btn btn-outline-secondary btn-sm">
-    &larr; 목록으로
-  </a>
+  <a href="${pageContext.request.contextPath}/free" class="btn btn-outline-secondary btn-sm">&larr; 목록으로</a>
 </div>
 
 <div class="card shadow-sm">
-  <div class="card-header bg-primary text-white">
+  <div class="card-header" style="background:var(--bg-card);border-bottom:1px solid var(--border-color)">
     <h5 class="mb-0">글쓰기</h5>
   </div>
-  <div class="card-body">
+  <div class="card-body p-4">
     <form action="${pageContext.request.contextPath}/free/write" method="post">
       <div class="mb-3">
-        <label for="cateId" class="form-label fw-bold">카테고리</label>
+        <label for="cateId" class="form-label">카테고리</label>
         <select id="cateId" name="cateId" class="form-select" required>
           <option value="">카테고리를 선택하세요</option>
           <c:forEach var="category" items="${categories}">
@@ -26,17 +25,14 @@
           </c:forEach>
         </select>
       </div>
-
       <div class="mb-3">
-        <label for="title" class="form-label fw-bold">제목</label>
+        <label for="title" class="form-label">제목</label>
         <input type="text" id="title" name="title" class="form-control" required maxlength="100" placeholder="제목을 입력하세요">
       </div>
-
-      <div class="mb-3">
-        <label for="content" class="form-label fw-bold">내용</label>
+      <div class="mb-4">
+        <label for="content" class="form-label">내용</label>
         <textarea id="content" name="content" class="form-control" rows="12" required placeholder="내용을 입력하세요"></textarea>
       </div>
-
       <div class="d-flex justify-content-center gap-2">
         <button type="submit" class="btn btn-primary px-4">작성 완료</button>
         <a href="${pageContext.request.contextPath}/free" class="btn btn-secondary px-4">취소</a>
