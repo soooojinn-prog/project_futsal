@@ -19,6 +19,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import javax.sql.DataSource;
 
@@ -63,5 +64,10 @@ public class RootConfig {
   @Bean
   public DataSourceTransactionManager transactionManager(DataSource ds) {
     return new DataSourceTransactionManager(ds);
+  }
+
+  @Bean
+  public RestTemplate restTemplate() {
+    return new RestTemplate();
   }
 }
