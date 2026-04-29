@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(mvn spotless:apply)",
+      "Bash(mvn package *)",
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell(& \"C:\\\\Windows\\\\System32\\\\where.exe\" mvn 2>&1; & \"C:\\\\Windows\\\\System32\\\\where.exe\" mvnw 2>&1)",
+      "PowerShell(dir \"C:\\\\Program Files\\\\JetBrains\\\\IntelliJ IDEA 2025.3.2\\\\plugins\" 2>&1 | Where-Object { $_ -match \"aven\" } | Select-Object -First 10)",
+      "PowerShell($mvn = \"C:\\\\Program Files\\\\JetBrains\\\\IntelliJ IDEA 2025.3.2\\\\plugins\\\\maven\\\\lib\\\\maven3\\\\bin\\\\mvn.cmd\"; $java = \"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-21.0.9.10-hotspot\"; $env:JAVA_HOME = $java; Set-Location \"C:\\\\letsfutsal\"; & $mvn spotless:apply 2>&1 | Select-Object -Last 20)",
+      "PowerShell($mvn = \"C:\\\\Program Files\\\\JetBrains\\\\IntelliJ IDEA 2025.3.2\\\\plugins\\\\maven\\\\lib\\\\maven3\\\\bin\\\\mvn.cmd\"; $java = \"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-21.0.9.10-hotspot\"; $env:JAVA_HOME = $java; Set-Location \"C:\\\\letsfutsal\"; & $mvn package -DskipTests 2>&1 | Select-Object -Last 20)",
+      "Bash(JAVA_HOME=\"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-21.0.6.7-hotspot\" C:\\\\Program Files\\\\JetBrains\\\\IntelliJ IDEA 2025.3.2\\\\plugins\\\\maven\\\\lib\\\\maven3\\\\bin\\\\mvn.cmd spotless:apply *)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-21.0.6.7-hotspot\"; & \"C:\\\\Program Files\\\\JetBrains\\\\IntelliJ IDEA 2025.3.2\\\\plugins\\\\maven\\\\lib\\\\maven3\\\\bin\\\\mvn.cmd\" spotless:apply package -DskipTests 2>&1)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-21.0.6.7-hotspot\"; $env:PATH = \"$env:JAVA_HOME\\\\bin;$env:PATH\"; & \"C:\\\\Program Files\\\\JetBrains\\\\IntelliJ IDEA 2025.3.2\\\\plugins\\\\maven\\\\lib\\\\maven3\\\\bin\\\\mvn.cmd\" spotless:apply package -DskipTests)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-21.0.9.10-hotspot\"; $env:PATH = \"$env:JAVA_HOME\\\\bin;$env:PATH\"; Set-Location \"C:\\\\letsfutsal\"; & \"C:\\\\Program Files\\\\JetBrains\\\\IntelliJ IDEA 2025.3.2\\\\plugins\\\\maven\\\\lib\\\\maven3\\\\bin\\\\mvn.cmd\" spotless:apply package -DskipTests)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-21.0.9.10-hotspot\"; & \"C:\\\\Program Files\\\\JetBrains\\\\IntelliJ IDEA 2025.3.2\\\\plugins\\\\maven\\\\lib\\\\maven3\\\\bin\\\\mvn.cmd\" spotless:apply package -DskipTests -f \"C:\\\\letsfutsal\\\\pom.xml\" 2>&1 | Select-String -Pattern \"BUILD|ERROR|WARNING|spotless|WARN\" | Select-Object -Last 30)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-21.0.9.10-hotspot\"; & \"C:\\\\Program Files\\\\JetBrains\\\\IntelliJ IDEA 2025.3.2\\\\plugins\\\\maven\\\\lib\\\\maven3\\\\bin\\\\mvn.cmd\" spotless:apply package -DskipTests -f \"C:\\\\letsfutsal\\\\pom.xml\" 2>&1)"
+    ]
+  }
+}
