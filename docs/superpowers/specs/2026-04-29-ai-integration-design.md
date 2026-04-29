@@ -217,3 +217,15 @@ public class RecommendService {
 ### 정량적 평가 (실서비스 데이터 수집 후)
 - Precision@5: 추천된 5개 중 실제 신청한 매치 비율
 - 재방문율: 추천 후 매치 신청까지 이어진 비율
+
+---
+
+## 11. 기술 의사결정
+
+| 선택 | 대안 | 선택 이유 |
+|------|------|-----------|
+| FastAPI | Flask, Django | 비동기 지원, 자동 API 문서, 타입 검증 |
+| Content-Based | Collaborative Filtering | 데이터 부족 시 적합, Cold-start 강함 |
+| Claude Sonnet | GPT-4, Gemini | 한국어 자연스러움, 안전 가이드라인 강함 |
+| 세션 저장 | DB 저장 | MVP 단계 단순화, 확장 시 마이그레이션 가능 |
+| Python 분리 | Spring 단일 | ML 라이브러리 생태계, 책임 분리 |
