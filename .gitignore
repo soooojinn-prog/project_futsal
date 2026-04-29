@@ -1,3 +1,13 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Claude Code
+.claude/settings.local.json
+
 # Created by https://www.toptal.com/developers/gitignore/api/java,windows,linux,macos,maven,gradle,eclipse,intellij+all,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=java,windows,linux,macos,maven,gradle,eclipse,intellij+all,visualstudiocode
 
