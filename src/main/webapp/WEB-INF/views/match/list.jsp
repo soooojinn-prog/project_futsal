@@ -16,6 +16,48 @@
   pageContext.setAttribute("matchType", matchType);
 %>
 
+<%-- AI 추천 섹션 (로그인 유저에게만 표시) --%>
+<c:if test="${not empty loginUser}">
+  <div id="ai-recommend-section" class="mb-4" style="display:none;">
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <span style="font-size:20px;">&#x26BD;</span>
+      <h5 class="mb-0 fw-bold">AI 추천 매치</h5>
+      <span class="badge bg-primary" style="font-size:11px;">FOR YOU</span>
+    </div>
+    <div id="ai-recommend-list" class="row g-3">
+      <div class="col-12 text-center text-muted py-3">
+        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+        AI가 맞춤 매치를 분석 중입니다...
+      </div>
+    </div>
+    <hr class="mt-4">
+  </div>
+  <script>
+    fetch(contextPath + '/ai/recommend/matches')
+      .then(function(res) { return res.json(); })
+      .then(function(matches) {
+        if (!matches || matches.length === 0) return;
+        var section = document.getElementById('ai-recommend-section');
+        var list = document.getElementById('ai-recommend-list');
+        section.style.display = 'block';
+        list.innerHTML = matches.map(function(m) {
+          return '<div class="col-md-4">'
+            + '<a href="' + contextPath + '/match/' + m.matchId + '" class="text-decoration-none">'
+            + '<div class="card h-100 border-primary" style="border-width:2px;">'
+            + '<div class="card-body">'
+            + '<div class="d-flex justify-content-between align-items-start mb-2">'
+            + '<span class="badge bg-primary">' + (m.matchType || '매치') + '</span>'
+            + '<small class="text-muted">' + (m.region || '') + '</small>'
+            + '</div>'
+            + '<p class="mb-1"><strong>' + (m.stadiumName || '경기장 미정') + '</strong></p>'
+            + '<small class="text-muted">' + (m.matchDate || '') + ' | 등급 ' + m.minGrade + '~' + m.maxGrade + '</small>'
+            + '</div></div></a></div>';
+        }).join('');
+      })
+      .catch(function() {});
+  </script>
+</c:if>
+
 <div class="page-hero">
   <h2>매치 목록</h2>
   <div class="page-hero-bar"></div>
