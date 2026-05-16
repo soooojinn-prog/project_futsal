@@ -70,26 +70,26 @@
   <%-- AI 챗봇 위젯 (로그인 유저에게만 표시) --%>
   <c:if test="${not empty loginUser}">
     <div id="ai-chat-widget" style="position:fixed;bottom:24px;right:24px;z-index:9999;">
-      <div id="chat-panel" style="display:none;width:340px;height:460px;background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.18);flex-direction:column;overflow:hidden;">
-        <div style="background:var(--primary,#2563eb);color:#fff;padding:14px 18px;font-weight:700;display:flex;justify-content:space-between;align-items:center;">
+      <div id="chat-panel" style="display:none;width:min(340px,calc(100vw - 48px));height:460px;background:var(--bg-3);border:1px solid var(--border);border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.5);flex-direction:column;overflow:hidden;">
+        <div style="background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#000;padding:14px 18px;font-weight:700;display:flex;justify-content:space-between;align-items:center;">
           <span>&#x26BD; AI 풋살 어시스턴트</span>
-          <button onclick="toggleChat()" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">&#x2715;</button>
+          <button onclick="toggleChat()" style="background:none;border:none;color:#000;font-size:18px;cursor:pointer;">&#x2715;</button>
         </div>
-        <div id="chat-messages" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;">
-          <div style="background:#f1f5f9;border-radius:12px 12px 12px 4px;padding:10px 14px;max-width:85%;font-size:14px;">
-            안녕하세요 ${loginUser.nickname}님! 풋살 관련 무엇이든 물어보세요
+        <div id="chat-messages" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--bg-3);">
+          <div style="background:var(--bg-4);border:1px solid var(--border);color:var(--text);border-radius:12px 12px 12px 4px;padding:10px 14px;max-width:85%;font-size:14px;">
+            안녕하세요 <c:out value="${loginUser.nickname}"/>님! 풋살 관련 무엇이든 물어보세요
           </div>
         </div>
-        <div style="padding:12px;border-top:1px solid #e2e8f0;display:flex;gap:8px;">
+        <div style="padding:12px;border-top:1px solid var(--border);display:flex;gap:8px;background:var(--bg-3);">
           <input id="chat-input" type="text" placeholder="메시지 입력..." maxlength="500"
-                 style="flex:1;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;font-size:14px;"
+                 style="flex:1;background:var(--bg-4);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:14px;color:var(--text);"
                  onkeydown="if(event.key==='Enter')sendMessage()">
           <button onclick="sendMessage()"
-                  style="background:var(--primary,#2563eb);color:#fff;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:14px;">전송</button>
+                  style="background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#000;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:14px;font-weight:700;">전송</button>
         </div>
       </div>
       <button id="chat-toggle-btn" onclick="toggleChat()"
-              style="display:block;width:56px;height:56px;border-radius:50%;background:var(--primary,#2563eb);color:#fff;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.2);margin-top:8px;">
+              style="display:block;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#000;border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 16px var(--accent-glow);margin-top:8px;">
         &#x26BD;
       </button>
     </div>
@@ -107,8 +107,8 @@
       function addBubble(text, isUser) {
         var el = document.createElement('div');
         el.style.cssText = isUser
-          ? 'background:#2563eb;color:#fff;border-radius:12px 12px 4px 12px;padding:10px 14px;max-width:85%;align-self:flex-end;font-size:14px;'
-          : 'background:#f1f5f9;border-radius:12px 12px 12px 4px;padding:10px 14px;max-width:85%;font-size:14px;';
+          ? 'background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#000;border-radius:12px 12px 4px 12px;padding:10px 14px;max-width:85%;align-self:flex-end;font-size:14px;font-weight:600;'
+          : 'background:var(--bg-4);border:1px solid var(--border);color:var(--text);border-radius:12px 12px 12px 4px;padding:10px 14px;max-width:85%;font-size:14px;';
         el.textContent = text;
         var messages = document.getElementById('chat-messages');
         messages.appendChild(el);
