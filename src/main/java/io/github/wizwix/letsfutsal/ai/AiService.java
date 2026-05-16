@@ -75,7 +75,7 @@ public class AiService {
     String systemJson = objectMapper.writeValueAsString(systemPrompt);
     String messageJson = objectMapper.writeValueAsString(userMessage);
     return String.format(
-        "{\"model\":\"claude-sonnet-4-6\",\"max_tokens\":1024,\"system\":%s,\"messages\":[{\"role\":\"user\",\"content\":%s}]}",
+        "{\"model\":\"claude-sonnet-4-6\",\"max_tokens\":2048,\"system\":%s,\"messages\":[{\"role\":\"user\",\"content\":%s}]}",
         systemJson, messageJson);
   }
 
