@@ -32,6 +32,9 @@ public class UserService implements IUserService {
 
   @Override
   public void register(UserDTO user) {
+    if (user.getPreferredPosition() != null && user.getPreferredPosition().isBlank()) {
+      user.setPreferredPosition(null);
+    }
     // 비밀번호 암호화 추가 필요
     userMapper.insertUser(user);
   }
