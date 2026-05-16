@@ -22,7 +22,7 @@
     <div class="d-flex align-items-center gap-2 mb-3">
       <span style="font-size:20px;">&#x26BD;</span>
       <h5 class="mb-0 fw-bold">AI 추천 매치</h5>
-      <span class="badge bg-primary" style="font-size:11px;">FOR YOU</span>
+      <span class="badge" style="background:var(--accent);color:#000;font-size:11px;">FOR YOU</span>
     </div>
     <div id="ai-recommend-list" class="row g-3">
       <div class="col-12 text-center text-muted py-3">
@@ -30,9 +30,22 @@
         AI가 맞춤 매치를 분석 중입니다...
       </div>
     </div>
-    <hr class="mt-4">
+    <div style="border-top:1px solid var(--border);margin-top:1.5rem;"></div>
   </div>
   <script>
+    function matchTypeLabel(type) {
+      var map = { 'INDIVIDUAL': '개인', 'TEAM': '팀', 'RENT': '대여' };
+      return map[type] || '매치';
+    }
+    function gradeLabel(g) {
+      var map = { 0: '입문', 1: '초보', 2: '중수', 3: '고수' };
+      return map[g] !== undefined ? map[g] : g;
+    }
+    function matchTypeBadgeColor(type) {
+      var map = { 'INDIVIDUAL': 'var(--badge-individual)', 'TEAM': 'var(--badge-team)', 'RENT': 'var(--badge-rent)' };
+      return map[type] || 'var(--accent)';
+    }
+
     fetch(contextPath + '/ai/recommend/matches')
       .then(function(res) { return res.json(); })
       .then(function(matches) {
@@ -43,14 +56,16 @@
         list.innerHTML = matches.map(function(m) {
           return '<div class="col-md-4">'
             + '<a href="' + contextPath + '/match/' + m.matchId + '" class="text-decoration-none">'
-            + '<div class="card h-100 border-primary" style="border-width:2px;">'
+            + '<div class="card h-100" style="border:2px solid var(--accent-border) !important;">'
             + '<div class="card-body">'
             + '<div class="d-flex justify-content-between align-items-start mb-2">'
-            + '<span class="badge bg-primary">' + (m.matchType || '매치') + '</span>'
+            + '<span class="badge" style="background:' + matchTypeBadgeColor(m.matchType) + ';color:#000;">'
+            + matchTypeLabel(m.matchType) + '</span>'
             + '<small class="text-muted">' + (m.region || '') + '</small>'
             + '</div>'
-            + '<p class="mb-1"><strong>' + (m.stadiumName || '경기장 미정') + '</strong></p>'
-            + '<small class="text-muted">' + (m.matchDate || '') + ' | 등급 ' + m.minGrade + '~' + m.maxGrade + '</small>'
+            + '<p class="mb-1 fw-bold" style="color:var(--text);">' + (m.stadiumName || '경기장 미정') + '</p>'
+            + '<small class="text-muted">' + (m.matchDate || '') + ' | 등급 '
+            + gradeLabel(m.minGrade) + '~' + gradeLabel(m.maxGrade) + '</small>'
             + '</div></div></a></div>';
         }).join('');
       })
