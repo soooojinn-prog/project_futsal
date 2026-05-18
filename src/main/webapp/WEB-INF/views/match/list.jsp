@@ -53,10 +53,14 @@
         var section = document.getElementById('ai-recommend-section');
         var list = document.getElementById('ai-recommend-list');
         section.style.display = 'block';
-        list.innerHTML = matches.map(function(m) {
+        list.innerHTML = matches.slice(0, 6).map(function(m) {
+          var closed = m.status >= 10;
+          var statusBadge = closed
+            ? '<span style="background:#ef4444;color:#fff;border-radius:4px;padding:2px 8px;font-size:11px;">마감</span>'
+            : '<small class="text-muted">' + m.status + '명 참여중</small>';
           return '<div class="col-md-4">'
             + '<a href="' + contextPath + '/match/' + m.matchId + '" class="text-decoration-none">'
-            + '<div class="card h-100" style="border:2px solid var(--accent-border) !important;">'
+            + '<div class="card h-100" style="border:2px solid var(--accent-border) !important;' + (closed ? 'opacity:0.6;' : '') + '">'
             + '<div class="card-body">'
             + '<div class="d-flex justify-content-between align-items-start mb-2">'
             + '<span class="badge" style="background:' + matchTypeBadgeColor(m.matchType) + ';color:#000;">'
@@ -66,6 +70,7 @@
             + '<p class="mb-1 fw-bold" style="color:var(--text);">' + (m.stadiumName || '경기장 미정') + '</p>'
             + '<small class="text-muted">' + (m.matchDate || '') + ' | 등급 '
             + gradeLabel(m.minGrade) + '~' + gradeLabel(m.maxGrade) + '</small>'
+            + '<div class="mt-2">' + statusBadge + '</div>'
             + '</div></div></a></div>';
         }).join('');
       })
@@ -183,7 +188,14 @@
             <c:choose><c:when test="${m.minGrade==0}">입문</c:when><c:when test="${m.minGrade==1}">초보</c:when><c:when test="${m.minGrade==2}">중수</c:when><c:otherwise>고수</c:otherwise></c:choose>~<c:choose><c:when test="${m.maxGrade==0}">입문</c:when><c:when test="${m.maxGrade==1}">초보</c:when><c:when test="${m.maxGrade==2}">중수</c:when><c:otherwise>고수</c:otherwise></c:choose>
           </div>
           <div class="d-flex justify-content-between align-items-center mt-auto">
-            <span class="match-list-status"><span class="count">${m.status}</span>명 참여중</span>
+            <c:choose>
+              <c:when test="${m.status >= 10}">
+                <span class="badge" style="background:#ef4444;color:#fff;font-size:12px;padding:5px 10px;">마감</span>
+              </c:when>
+              <c:otherwise>
+                <span class="match-list-status"><span class="count">${m.status}</span>명 참여중</span>
+              </c:otherwise>
+            </c:choose>
             <a href="${pageContext.request.contextPath}/match/${m.matchId}" class="btn btn-sm btn-primary">상세보기</a>
           </div>
           <div class="mt-2" style="font-size:0.75rem;color:var(--text-3)">${m.matchDate}</div>

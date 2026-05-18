@@ -41,7 +41,8 @@ public class RecommendService {
       List<Integer> matchIds = (List<Integer>) response.get("matchIds");
       return matchIds.stream()
           .map(id -> matchService.getMatchById(id.longValue()))
-          .filter(m -> m != null)
+          .filter(m -> m != null && m.getStatus() < 10)
+          .limit(6)
           .toList();
     } catch (Exception e) {
       return getFallbackMatches();
@@ -49,6 +50,10 @@ public class RecommendService {
   }
 
   private List<MatchDTO> getFallbackMatches() {
-    return matchService.getMatchList("all", null, null, null, null, null, null, null);
+    return matchService.getMatchList("all", null, null, null, null, null, null, null)
+        .stream()
+        .filter(m -> m.getStatus() < 10)
+        .limit(6)
+        .toList();
   }
 }
