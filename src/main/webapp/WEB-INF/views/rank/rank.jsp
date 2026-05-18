@@ -88,6 +88,7 @@
                   </div>
                   <span class="podium-point">${user.point}</span>
                   <span class="podium-point-label">POINTS</span>
+                  <div class="podium-bar"><div class="podium-bar-fill"></div></div>
                 </div>
               </c:when>
               <c:when test="${vs.index==1}">
@@ -102,6 +103,7 @@
                   </div>
                   <span class="podium-point">${user.point}</span>
                   <span class="podium-point-label">POINTS</span>
+                  <div class="podium-bar"><div class="podium-bar-fill"></div></div>
                 </div>
               </c:when>
               <c:otherwise>
@@ -116,6 +118,7 @@
                   </div>
                   <span class="podium-point">${user.point}</span>
                   <span class="podium-point-label">POINTS</span>
+                  <div class="podium-bar"><div class="podium-bar-fill"></div></div>
                 </div>
               </c:otherwise>
             </c:choose>
@@ -174,6 +177,7 @@
                   <div class="podium-meta"><c:choose><c:when test="${user.gender=='MALE'}">남성</c:when><c:when test="${user.gender=='FEMALE'}">여성</c:when><c:otherwise>-</c:otherwise></c:choose></div>
                   <span class="podium-point">${user.point}</span>
                   <span class="podium-point-label">POINTS</span>
+                  <div class="podium-bar"><div class="podium-bar-fill"></div></div>
                 </div>
               </c:when>
               <c:when test="${vs.index==1}">
@@ -184,6 +188,7 @@
                   <div class="podium-meta"><c:choose><c:when test="${user.gender=='MALE'}">남성</c:when><c:when test="${user.gender=='FEMALE'}">여성</c:when><c:otherwise>-</c:otherwise></c:choose></div>
                   <span class="podium-point">${user.point}</span>
                   <span class="podium-point-label">POINTS</span>
+                  <div class="podium-bar"><div class="podium-bar-fill"></div></div>
                 </div>
               </c:when>
               <c:otherwise>
@@ -194,6 +199,7 @@
                   <div class="podium-meta"><c:choose><c:when test="${user.gender=='MALE'}">남성</c:when><c:when test="${user.gender=='FEMALE'}">여성</c:when><c:otherwise>-</c:otherwise></c:choose></div>
                   <span class="podium-point">${user.point}</span>
                   <span class="podium-point-label">POINTS</span>
+                  <div class="podium-bar"><div class="podium-bar-fill"></div></div>
                 </div>
               </c:otherwise>
             </c:choose>
@@ -244,6 +250,7 @@
                   <div class="podium-meta">${team.region} · ${team.memberCount}명</div>
                   <span class="podium-point">${team.averagePoints}</span>
                   <span class="podium-point-label">AVG POINTS</span>
+                  <div class="podium-bar"><div class="podium-bar-fill"></div></div>
                 </div>
               </c:when>
               <c:when test="${vs.index==1}">
@@ -254,6 +261,7 @@
                   <div class="podium-meta">${team.region} · ${team.memberCount}명</div>
                   <span class="podium-point">${team.averagePoints}</span>
                   <span class="podium-point-label">AVG POINTS</span>
+                  <div class="podium-bar"><div class="podium-bar-fill"></div></div>
                 </div>
               </c:when>
               <c:otherwise>
@@ -264,6 +272,7 @@
                   <div class="podium-meta">${team.region} · ${team.memberCount}명</div>
                   <span class="podium-point">${team.averagePoints}</span>
                   <span class="podium-point-label">AVG POINTS</span>
+                  <div class="podium-bar"><div class="podium-bar-fill"></div></div>
                 </div>
               </c:otherwise>
             </c:choose>
