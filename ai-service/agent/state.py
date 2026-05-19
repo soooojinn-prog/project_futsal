@@ -1,4 +1,4 @@
-from typing import Literal, TypedDict
+from typing import Literal, NotRequired, TypedDict
 
 
 class AgentState(TypedDict):
@@ -12,6 +12,7 @@ class AgentState(TypedDict):
     bracket: dict | None
     warnings: list[str]
     errors: list[str]
+    proposal_id: NotRequired[str]
 
 
 def make_initial_state(user_input: str, user_id: int) -> AgentState:
