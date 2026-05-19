@@ -111,13 +111,18 @@ def router_classify(req: ClassifyRequest):
 
 
 def _match_dict_to_proposal(m: dict) -> MatchProposal:
+    def _team(t: dict | None) -> TeamSummary | None:
+        if t is None:
+            return None
+        return TeamSummary(id=t.get("id"), name=t.get("name") or "팀")
+
     return MatchProposal(
         stadium_id=m["stadium_id"],
         stadium_name=m["stadium_name"],
         start_time=m["start_time"],
         duration_min=m.get("duration_min", 60),
-        team_a=TeamSummary(**m["team_a"]),
-        team_b=TeamSummary(**m["team_b"]) if m.get("team_b") else None,
+        team_a=_team(m.get("team_a")) or TeamSummary(name="내 팀"),
+        team_b=_team(m.get("team_b")),
         stage=m.get("stage"),
     )
 

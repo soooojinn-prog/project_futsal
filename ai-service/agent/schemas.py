@@ -9,7 +9,7 @@ class AgentRequest(BaseModel):
 
 
 class TeamSummary(BaseModel):
-    id: int
+    id: int | None = None
     name: str
 
 
