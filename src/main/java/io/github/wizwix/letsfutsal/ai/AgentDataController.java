@@ -6,6 +6,7 @@ import io.github.wizwix.letsfutsal.dto.UserDTO;
 import io.github.wizwix.letsfutsal.mapper.MatchMapper;
 import io.github.wizwix.letsfutsal.mapper.StadiumMapper;
 import io.github.wizwix.letsfutsal.mapper.TeamMapper;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -49,7 +50,7 @@ public class AgentDataController {
       @RequestParam(required = false) String dateFrom,
       @RequestParam(required = false) String dateTo) {
     List<StadiumDTO> raw = stadiumMapper.selectAllStadiums();
-    String q = region == null ? "" : region.trim();
+    String q = region == null ? "" : fixKoreanEncoding(region.trim());
     List<Map<String, Object>> out = new ArrayList<>();
     for (StadiumDTO s : raw) {
       if (!q.isEmpty()
@@ -109,5 +110,25 @@ public class AgentDataController {
       @RequestParam("dateTo") String dateTo) {
     return matchMapper.selectMatchesByTeamAndDateRange(
         teamId, LocalDate.parse(dateFrom), LocalDate.parse(dateTo));
+  }
+
+  /**
+   * Tomcat이 URI를 ISO-8859-1로 디코딩한 경우 깨진 한글을 UTF-8로 재해석. 정상 UTF-8이면 변환해도 결과 동일.
+   */
+  private static String fixKoreanEncoding(String s) {
+    if (s == null || s.isEmpty()) return s;
+    try {
+      String repaired =
+          new String(s.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+      // 재해석 결과가 한글 범위면 그것을 사용, 아니면 원본 유지
+      for (int i = 0; i < repaired.length(); i++) {
+        char c = repaired.charAt(i);
+        if (c >= 0xAC00 && c <= 0xD7A3) {
+          return repaired;
+        }
+      }
+    } catch (Exception ignored) {
+    }
+    return s;
   }
 }
