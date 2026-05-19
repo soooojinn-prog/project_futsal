@@ -39,16 +39,27 @@ public class AgentDataController {
     this.teamMapper = teamMapper;
   }
 
-  /** 지역으로 경기장 검색. region 비어있으면 전체 반환. */
+  /** 지역으로 경기장 검색. region 비어있으면 전체 반환. Python Tool 호환 위해 {id, name, region}만 추출. */
   @GetMapping("/stadium")
-  public List<StadiumDTO> searchStadium(
+  public List<Map<String, Object>> searchStadium(
       @RequestParam(required = false) String region,
       @RequestParam(required = false) String dateFrom,
       @RequestParam(required = false) String dateTo) {
+    List<StadiumDTO> raw;
     if (region == null || region.isBlank()) {
-      return stadiumMapper.selectAllStadiums();
+      raw = stadiumMapper.selectAllStadiums();
+    } else {
+      raw = stadiumMapper.selectStadiumsByRegion(region);
     }
-    return stadiumMapper.selectStadiumsByRegion(region);
+    List<Map<String, Object>> out = new ArrayList<>();
+    for (StadiumDTO s : raw) {
+      Map<String, Object> m = new HashMap<>();
+      m.put("id", s.getStadiumId());
+      m.put("name", s.getName());
+      m.put("region", s.getRegion());
+      out.add(m);
+    }
+    return out;
   }
 
   /** 경기장 + 날짜에 빈 1시간 슬롯(9~23시 중) 목록 반환. */
