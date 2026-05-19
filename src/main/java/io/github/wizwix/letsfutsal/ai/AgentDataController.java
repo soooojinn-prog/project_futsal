@@ -69,11 +69,17 @@ public class AgentDataController {
     return out;
   }
 
-  /** 경기장 + 날짜에 빈 1시간 슬롯(9~23시 중) 목록 반환. */
+  /** 경기장 + 날짜에 빈 1시간 슬롯(9~23시 중) 목록 반환. date 비어있으면 오늘 기준. */
   @GetMapping("/stadium/{id}/slots")
   public List<Map<String, String>> listStadiumSlots(
-      @PathVariable("id") long stadiumId, @RequestParam("date") String date) {
-    LocalDate d = LocalDate.parse(date);
+      @PathVariable("id") long stadiumId,
+      @RequestParam(value = "date", required = false) String date) {
+    LocalDate d;
+    try {
+      d = (date == null || date.isBlank()) ? LocalDate.now() : LocalDate.parse(date);
+    } catch (Exception e) {
+      d = LocalDate.now();
+    }
     List<MatchDTO> booked = matchMapper.selectByStadiumAndDate(stadiumId, d);
 
     List<Map<String, String>> slots = new ArrayList<>();

@@ -103,6 +103,8 @@ def _slot_conflicts(slot: dict, conflicts: list[dict]) -> bool:
 
 def single_match_node(state: AgentState, tools: Tools) -> AgentState:
     """경기장 후보 × 시간 슬롯에서 충돌 없는 매치 제안 최대 3개 생성."""
+    from datetime import date as _date, timedelta
+
     candidates = state["stadium_candidates"]
     team_info = state["team_info"]
     conflicts = team_info.get("conflicts", []) if team_info else []
@@ -111,7 +113,13 @@ def single_match_node(state: AgentState, tools: Tools) -> AgentState:
         "name": team_info.get("team_name", "내 팀"),
     }
     proposals: list[dict] = []
-    date = state["slots"].get("date_from", "")
+    date = state["slots"].get("date_from") or ""
+    if not date:
+        # LLM이 날짜 추출 못한 경우 — 다음 토요일 사용
+        today = _date.today()
+        next_sat = today + timedelta(days=(5 - today.weekday()) % 7 or 7)
+        date = next_sat.isoformat()
+        state["warnings"].append(f"날짜가 명시되지 않아 다음 주말({date})로 가정합니다.")
 
     for stadium in candidates[:5]:
         slots = tools.list_stadium_slots(stadium["id"], date)
