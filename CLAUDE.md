@@ -67,9 +67,24 @@ Controller → Service → Mapper(interface) → MyBatis XML → MySQL
 
 - **Spring 측**: `ai/AiService.java`, `ai/ChatController.java`, `ai/IntentRouter.java`, `ai/RagClient.java`, `ai/RecommendService.java`
 - **DTO**: `dto/ChatRequestDTO.java`, `dto/ChatResponseDTO.java` (`message`/`mode`/`citations`), `dto/CitationDTO.java`
-- **Python ai-service** (`ai-service/`): FastAPI + LangChain + ChromaDB + sentence-transformers(`jhgan/ko-sroberta-multitask`) + Anthropic SDK. 자세한 구조·실행·평가는 [`ai-service/README.md`](ai-service/README.md) 참고.
-- **환경 변수**: `CLAUDE_API_KEY` (Spring·Python 공유), `AI_SERVICE_URL` (기본 `http://localhost:8000`)
+- **Python ai-service** (`ai-service/`): FastAPI + LangChain + ChromaDB + sentence-transformers(`jhgan/ko-sroberta-multitask`) + LangGraph + Anthropic SDK. 자세한 구조·실행·평가는 [`ai-service/README.md`](ai-service/README.md) 참고.
+- **환경 변수**: `CLAUDE_API_KEY` (Spring·Python 공유), `AI_SERVICE_URL` (기본 `http://localhost:8000`), `SPRING_BASE_URL` (Python에서 Spring 호출용)
 - **레이트 리미트**: 챗봇 세션당 일일 30회 (`ChatController.DAILY_LIMIT`)
+
+**LangGraph 에이전트** (`/ai/coordinator` 페이지)
+
+자연어 요청을 별도 페이지에서 받아 LangGraph StateGraph로 처리:
+
+```
+사용자 입력 → parse_intent (Claude Tool Use) → conditional edge
+  ├─ SINGLE      → single_stadium → single_team → single_match → review
+  └─ TOURNAMENT  → ThreadPoolExecutor로 Stadium/Team/MatchAgent 병렬 → tournament_assemble
+→ summarize → ProposalDTO 응답 → 사용자 편집 → /ai/agent/confirm → DB INSERT
+```
+
+- **Spring 측**: `ai/AgentController.java`, `ai/AgentService.java`, `ai/AgentDataController.java` (에이전트용 read-only API), `dto/AgentRequestDTO.java`, `dto/ProposalDTO.java`, `dto/MatchProposalDTO.java`, `dto/BracketDTO.java`, `dto/ConfirmRequestDTO.java`
+- **Python ai-service** (`ai-service/agent/`): LangGraph 0.2 + Tool 6개 + StateGraph + 3개 sub-agent
+- **인증**: `/api/agent-data/**`는 인터셉터 영향 없음 (내부 호출용 read-only)
 
 ### MyBatis 설정 특이사항
 - `mapUnderscoreToCamelCase=true` — DB 컬럼 `snake_case` → Java 필드 `camelCase` 자동 변환

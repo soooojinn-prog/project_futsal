@@ -71,9 +71,24 @@
 
 ---
 
-## 기능 3. LangGraph 매치 코디네이터 + 토너먼트 에이전트
+## 기능 3. LangGraph 매치 코디네이터 + 토너먼트 에이전트 ✅ 구현 완료 (2026-05-19)
 
 **핵심 기술**: LangGraph + Multi-Agent + Tool Use
+
+### 구현 결과
+- **하이브리드 그래프**: `parse_intent` 노드(Claude Tool Use)가 SINGLE/TOURNAMENT 분류 → conditional edge로 분기
+- **단일 매치**: `single_stadium → single_team → single_match → single_review` 순차 노드
+- **토너먼트**: StadiumAgent + TeamAgent를 `ThreadPoolExecutor`로 병렬 실행 → MatchAgent로 대진표·매치 통합
+- **하이브리드 DB 반영**: 검색은 자동, INSERT는 미리보기 → 사용자 확정 → 트랜잭션
+- **별도 페이지** `/ai/coordinator`: 자연어 입력 + 미리보기 카드 편집 + 확정 버튼
+- **정량 평가**: 시나리오 8개 + 4개 지표(intent_acc, tool_correctness, proposal_validity, e2e_success)
+
+### 산출물
+- Python: `ai-service/agent/` 6개 모듈 (`state`, `schemas`, `springboot_client`, `tools`, `nodes`, `subagents`, `graph`), `eval/run_agent_eval.py`
+- Java: `AgentController`, `AgentService`, `AgentDataController`, DTO 5종(`AgentRequest`, `Proposal`, `MatchProposal`, `Bracket`, `ConfirmRequest`)
+- JSP: `/ai/coordinator` 페이지 + `agent_coordinator.js` 편집 UI
+- 단위 테스트 ~40개(Python 36 + Java 6) 통과
+- 관련: [spec](superpowers/specs/2026-05-19-langgraph-agent-design.md), [plan](superpowers/plans/2026-05-19-langgraph-agent.md)
 
 ### 기능 설명
 **기본 (매치 코디네이터)**  
@@ -152,5 +167,5 @@ LangGraph 병렬 노드로 Stadium + Team 동시 검색 후 Match 생성.
 ## 다음 단계
 
 1. ~~**브레인스토밍 #1**: 기능 2 (RAG 챗봇)~~ ✅ 2026-05-19 구현 완료
-2. **브레인스토밍 #2**: 기능 3 (LangGraph 에이전트)
+2. ~~**브레인스토밍 #2**: 기능 3 (LangGraph 에이전트)~~ ✅ 2026-05-19 구현 완료
 3. **브레인스토밍 #3**: 기능 1 (ML 포즈 분석)

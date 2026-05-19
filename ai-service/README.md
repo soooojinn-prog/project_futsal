@@ -7,7 +7,8 @@
 - **매치 추천** (`recommender.py`) — scikit-learn 기반, 사용자 등급·포지션·성별 매칭
 - **RAG 챗봇** (`rag/`) — LangChain + ChromaDB + sentence-transformers + Claude API
 - **라우터** (`rag/router_classifier.py`) — Claude Tool Use로 KNOWLEDGE/ADVICE 의도 분류
-- **평가** (`eval/`) — 골든셋 20문항 기반 retrieval/answer faithfulness 정량 측정
+- **LangGraph 에이전트** (`agent/`) — 단일 매치 / 토너먼트 코디네이터, StateGraph + conditional edge + ThreadPoolExecutor 병렬 sub-agent
+- **평가** (`eval/`) — 골든셋 20문항(RAG) + 시나리오 8개(에이전트) 기반 정량 측정
 
 ## 디렉토리
 
@@ -44,6 +45,7 @@ ai-service/
 | POST | `/recommend/matches` | 매치 추천 (Spring 호출용) |
 | POST | `/chat/rag` | RAG 답변 + citation |
 | POST | `/router/classify` | KNOWLEDGE/ADVICE 분류 |
+| POST | `/agent/run` | LangGraph 에이전트 실행 → ProposalDTO |
 
 ## 설치
 
@@ -102,7 +104,32 @@ curl -X POST http://localhost:8000/chat/rag `
 }
 ```
 
-## 평가
+## 에이전트 실행
+
+별도 사전 인덱싱 불필요. `/agent/run` 호출 시 `main.py` lifespan에서 빌드된 StateGraph가 즉시 실행.
+
+내부 흐름:
+- `parse_intent` 노드가 SINGLE/TOURNAMENT 분류 → conditional edge로 분기
+- SINGLE: stadium → team → match → review 순차
+- TOURNAMENT: StadiumAgent + TeamAgent를 ThreadPoolExecutor 병렬 실행 → MatchAgent로 대진표·매치 통합
+
+Spring 측 `AgentService`가 `/agent/run` 호출 → 사용자 미리보기 편집 → `/ai/agent/confirm` → `game_match` INSERT.
+
+## 에이전트 평가
+
+```powershell
+python -m eval.run_agent_eval
+```
+
+4개 지표:
+- `intent_acc` — 의도 분류 정확도 (목표 ≥ 0.90)
+- `tool_correctness` — 기대 Tool 호출 흔적 (LLM judge, 목표 ≥ 0.85)
+- `proposal_validity` — 시나리오별 최소 제안 수 충족 (목표 ≥ 0.90)
+- `e2e_success` — 전체 통과 (목표 ≥ 0.75)
+
+산출물: `eval/agent_report_<timestamp>.md` (덮어쓰기 방지로 매 실행마다 새 파일).
+
+## RAG 평가
 
 ```powershell
 python -m eval.run_eval --out eval/report.md
