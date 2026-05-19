@@ -112,4 +112,29 @@
     set status = #{status}
     where match_id = #{matchId}
   </update>
+  <!-- 에이전트 시간 슬롯 계산용: 경기장 + 날짜로 잡힌 매치 -->
+  <select id="selectByStadiumAndDate" resultType="io.github.wizwix.letsfutsal.dto.MatchDTO">
+    select
+      m.*,
+      s.name as stadiumName,
+      s.region
+    from letsfutsal.game_match m
+    join letsfutsal.stadium s on m.stadium_id = s.stadium_id
+    where m.stadium_id = #{stadiumId}
+      and m.match_date = #{date}
+    order by m.start_hour asc
+  </select>
+  <!-- 에이전트 충돌 체크용: 특정 팀이 기간 내 잡은 매치 -->
+  <select id="selectMatchesByTeamAndDateRange" resultType="io.github.wizwix.letsfutsal.dto.MatchDTO">
+    select
+      m.*,
+      s.name as stadiumName,
+      s.region
+    from letsfutsal.game_match m
+    join letsfutsal.stadium s on m.stadium_id = s.stadium_id
+    join letsfutsal.match_team_participants mtp on mtp.match_id = m.match_id
+    where mtp.team_id = #{teamId}
+      and m.match_date between #{dateFrom} and #{dateTo}
+    order by m.match_date asc, m.start_hour asc
+  </select>
 </mapper>

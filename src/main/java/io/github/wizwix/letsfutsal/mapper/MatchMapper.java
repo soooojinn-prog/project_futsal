@@ -41,4 +41,14 @@ public interface MatchMapper {
   List<MatchDTO> selectUpcomingMatches();
 
   int updateMatchStatus(@Param("matchId") long matchId, @Param("status") int status);
+
+  /// 특정 경기장 + 특정 날짜에 이미 잡힌 매치 목록 (에이전트 시간 슬롯 계산용)
+  List<MatchDTO> selectByStadiumAndDate(
+      @Param("stadiumId") long stadiumId, @Param("date") LocalDate date);
+
+  /// 특정 팀이 [dateFrom, dateTo] 기간에 잡은 매치 목록 (에이전트 충돌 체크용)
+  List<MatchDTO> selectMatchesByTeamAndDateRange(
+      @Param("teamId") long teamId,
+      @Param("dateFrom") LocalDate dateFrom,
+      @Param("dateTo") LocalDate dateTo);
 }
