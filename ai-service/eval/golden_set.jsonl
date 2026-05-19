@@ -1,0 +1,20 @@
+{"id":"q01","query":"풋살에 오프사이드 규칙이 있어?","expected_source":"rules 11 offside","reference":"풋살에는 오프사이드 규칙이 없다."}
+{"id":"q02","query":"풋살 경기 시간은 몇 분이야?","expected_source":"rules 07 duration","reference":"전후반 각 20분, 총 40분이며 볼이 아웃이면 시계가 정지하는 실제 플레이 타임이다."}
+{"id":"q03","query":"풋살에서 누적 파울이 5개를 넘으면 어떻게 돼?","expected_source":"rules 12 fouls","reference":"한 팀이 한 하프에 누적 파울 6번째부터 상대팀에게 벽을 세울 수 없는 10m 직접 프리킥이 주어진다."}
+{"id":"q04","query":"4-0 포메이션이 뭐야?","expected_source":"formations 4 0","reference":"수비라인 없이 네 명의 필드 플레이어가 일렬로 움직이는 공격적 포메이션이다."}
+{"id":"q05","query":"3-1 포메이션의 특징은?","expected_source":"formations 3 1","reference":"세 명의 수비/미드와 한 명의 피보로 구성된 균형형 포메이션이다."}
+{"id":"q06","query":"2-2 포메이션 어떨 때 써?","expected_source":"formations 2 2","reference":"두 명씩 전후방으로 나뉘어 좌우 균형을 가져가는 기본 포메이션."}
+{"id":"q07","query":"코너킥은 몇 초 안에 차야 해?","expected_source":"rules 17 corner","reference":"신호 후 4초 이내에 차야 한다."}
+{"id":"q08","query":"킥인 규칙 알려줘","expected_source":"rules 15 kickin","reference":"풋살은 축구의 스로인 대신 킥인으로 재개하며, 신호 후 4초 안에 차야 한다. 직접 골은 인정되지 않는다."}
+{"id":"q09","query":"풋살에서 압박 전술이란?","expected_source":"tactics pressing","reference":"상대 빌드업 단계에서 공간을 빠르게 좁혀 패스 미스를 유도하는 전술."}
+{"id":"q10","query":"카운터 공격은 어떻게 만들어?","expected_source":"tactics pressing","reference":"수비 후 빠른 전환으로 상대 수비가 정비되기 전에 공격을 마무리한다."}
+{"id":"q11","query":"드리블 기본 훈련법은?","expected_source":"training basics","reference":"공을 발 가까이 두고 좌우 발 인사이드/아웃사이드로 부드럽게 운반하는 연습이 기본이다."}
+{"id":"q12","query":"패스 연습 어떻게 해?","expected_source":"training basics","reference":"두 명이 마주보고 인사이드 패스를 반복하며, 거리와 속도를 점진적으로 늘린다."}
+{"id":"q13","query":"슈팅 기본 자세는?","expected_source":"training basics","reference":"디딤발을 공 옆에 두고 발등으로 임팩트, 상체는 약간 앞으로 기울인다."}
+{"id":"q14","query":"풋살 골키퍼는 볼을 몇 초 잡고 있을 수 있어?","expected_source":"rules 16 goalclearance","reference":"골키퍼는 자기 진영에서 볼을 4초 이상 소유할 수 없다."}
+{"id":"q15","query":"풋살 페널티킥 거리는 얼마야?","expected_source":"rules 14 penalty","reference":"페널티 마크는 골라인 중앙에서 6m 거리에 있다."}
+{"id":"q16","query":"피보 포지션이 뭐야?","expected_source":"formations 4 0","reference":"풋살의 최전방 공격수로, 등을 진 상태에서 볼을 받아 키핑·연결하는 역할."}
+{"id":"q17","query":"알라 포지션 설명","expected_source":"formations 3 1","reference":"좌우 측면 공격수로, 수비-공격을 모두 담당한다."}
+{"id":"q18","query":"풋살은 한 팀에 몇 명이야?","expected_source":"rules 03 players","reference":"각 팀은 골키퍼를 포함해 5명이며, 롤링 서브로 무제한 교체가 가능하다."}
+{"id":"q19","query":"우리 팀이 자꾸 지는데 어떡하지?","expected_source":"__ADVICE__","reference":"개인 조언성 질문 — 라우터 분류 검증용"}
+{"id":"q20","query":"오늘 풋살하기 좋은 날씨인가?","expected_source":"__ADVICE__","reference":"풋살과 무관/조언성 질문 — 라우터 분류 검증용"}
