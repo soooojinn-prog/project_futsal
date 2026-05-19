@@ -6,4 +6,3 @@ __pycache__/
 data/raw/*.pdf
 data/raw/excluded_pdf/
 data/chroma_db/
-eval/report.md

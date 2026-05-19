@@ -191,8 +191,19 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--golden", default="eval/golden_set.jsonl", type=Path)
     parser.add_argument("--persist", default="data/chroma_db", type=Path)
-    parser.add_argument("--out", default="eval/report.md", type=Path)
+    parser.add_argument(
+        "--out",
+        default=None,
+        type=Path,
+        help="출력 경로. 미지정 시 eval/report_YYYY-MM-DD_HHMM.md 자동 생성 (덮어쓰기 방지)",
+    )
     args = parser.parse_args()
+
+    if args.out is None:
+        stamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+        args.out = Path(f"eval/report_{stamp}.md")
+    if args.out.exists():
+        raise SystemExit(f"이미 존재하는 파일: {args.out} (덮어쓰기 차단)")
 
     golden = load_golden(args.golden)
     print(f"골든셋 {len(golden)}문항 로드. 평가 시작...")
