@@ -39,20 +39,24 @@ public class AgentDataController {
     this.teamMapper = teamMapper;
   }
 
-  /** 지역으로 경기장 검색. region 비어있으면 전체 반환. Python Tool 호환 위해 {id, name, region}만 추출. */
+  /**
+   * 검색어로 경기장 검색. region 또는 name 양쪽 부분일치 (LLM이 "강남" 추출했을 때 광역 region이 "서울"이라도 stadium name이 "강남구장"이면 매치).
+   * region 비어있으면 전체 반환. Python Tool 호환 위해 {id, name, region}만 추출.
+   */
   @GetMapping("/stadium")
   public List<Map<String, Object>> searchStadium(
       @RequestParam(required = false) String region,
       @RequestParam(required = false) String dateFrom,
       @RequestParam(required = false) String dateTo) {
-    List<StadiumDTO> raw;
-    if (region == null || region.isBlank()) {
-      raw = stadiumMapper.selectAllStadiums();
-    } else {
-      raw = stadiumMapper.selectStadiumsByRegion(region);
-    }
+    List<StadiumDTO> raw = stadiumMapper.selectAllStadiums();
+    String q = region == null ? "" : region.trim();
     List<Map<String, Object>> out = new ArrayList<>();
     for (StadiumDTO s : raw) {
+      if (!q.isEmpty()
+          && !(s.getRegion() != null && s.getRegion().contains(q))
+          && !(s.getName() != null && s.getName().contains(q))) {
+        continue;
+      }
       Map<String, Object> m = new HashMap<>();
       m.put("id", s.getStadiumId());
       m.put("name", s.getName());
