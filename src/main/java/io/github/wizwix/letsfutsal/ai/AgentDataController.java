@@ -114,10 +114,20 @@ public class AgentDataController {
   @GetMapping("/team-conflicts/{teamId}")
   public List<MatchDTO> teamConflicts(
       @PathVariable long teamId,
-      @RequestParam("dateFrom") String dateFrom,
-      @RequestParam("dateTo") String dateTo) {
-    return matchMapper.selectMatchesByTeamAndDateRange(
-        teamId, LocalDate.parse(dateFrom), LocalDate.parse(dateTo));
+      @RequestParam(value = "dateFrom", required = false) String dateFrom,
+      @RequestParam(value = "dateTo", required = false) String dateTo) {
+    LocalDate from = parseDateOrDefault(dateFrom, LocalDate.now());
+    LocalDate to = parseDateOrDefault(dateTo, from.plusDays(7));
+    return matchMapper.selectMatchesByTeamAndDateRange(teamId, from, to);
+  }
+
+  private static LocalDate parseDateOrDefault(String s, LocalDate fallback) {
+    if (s == null || s.isBlank()) return fallback;
+    try {
+      return LocalDate.parse(s);
+    } catch (Exception e) {
+      return fallback;
+    }
   }
 
   /** raw query string에서 특정 키의 값을 percent-decode하여 반환. Tomcat URI 인코딩 무관. */

@@ -92,12 +92,11 @@ def single_team_node(state: AgentState, tools: Tools) -> AgentState:
         state["warnings"].append("팀 정보가 없어 멤버·일정을 조회하지 못했습니다.")
         return state
 
+    slots = state["slots"]
+    date_from = slots.get("date_from") or _date.today().isoformat()
+    date_to = slots.get("date_to") or date_from
     team_info["members"] = tools.list_team_members(team_id)
-    team_info["conflicts"] = tools.find_team_conflicts(
-        team_id,
-        state["slots"].get("date_from", ""),
-        state["slots"].get("date_to", ""),
-    )
+    team_info["conflicts"] = tools.find_team_conflicts(team_id, date_from, date_to)
     state["team_info"] = team_info
     return state
 
