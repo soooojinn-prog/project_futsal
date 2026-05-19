@@ -40,29 +40,34 @@
 
 ---
 
-## 기능 2. RAG 기반 풋살 지식 챗봇 (LLM 업그레이드)
+## 기능 2. RAG 기반 풋살 지식 챗봇 (LLM 업그레이드) ✅ 구현 완료 (2026-05-19)
 
-**핵심 기술**: LangChain + ChromaDB + Claude API
+**핵심 기술**: LangChain + ChromaDB + Claude API + Intent Router (하이브리드)
 
-### 기능 설명
-기존 챗봇(단순 프롬프트)을 RAG 파이프라인으로 업그레이드:
+### 구현 결과
+- **하이브리드 라우터**: 키워드 사전 1차 → 미스 시 Claude Tool Use 분류기 폴백 → KNOWLEDGE/ADVICE 분기
+- **RAG 파이프라인**: `jhgan/ko-sroberta-multitask` 한국어 임베딩 + ChromaDB persist + 시스템 프롬프트 컨텍스트 주입
+- **Citation 자동 첨부**: top-4 청크의 `source`/`section`/`page`/`score` JSON 반환 → JSP 위젯에서 `📚` 표시
+- **우아한 폴백**: Python ai-service 다운 / RAG 실패 시 기존 Claude 직접 호출 경로로 자동 폴백
+- **정량 평가**: 골든셋 20문항(KNOWLEDGE 18 + ADVICE 분류 검증 2) + 5개 지표 자동 측정 스크립트
 
-1. 풋살 규칙서(FIFA Futsal Rules), 전술 문서, 훈련 가이드 PDF
-   → 청크 분할 → 벡터 임베딩 → ChromaDB 저장
-2. 사용자 질문 → 벡터 유사도 검색으로 관련 문서 3~5개 추출
-3. 추출된 문서를 컨텍스트로 Claude API에 전달
-4. "오프사이드 규칙이 뭐야?", "4-0 포메이션 전술은?" 같은 질문에 문서 기반 정확한 답변
+### 산출물
+- Python: `ai-service/rag/` 6개 모듈, `eval/run_eval.py`, `data/raw/` 18개 코퍼스 (FIFA 풋살 규칙 13조 + 전술/훈련 5종, 38청크)
+- Java: `IntentRouter`, `RagClient`, `AiService` 라우팅 진입점, `ChatResponseDTO`/`CitationDTO`
+- 단위 테스트 45개 (Python 36 + Java 9) 통과
+- 관련 문서: [spec](superpowers/specs/2026-05-19-rag-chatbot-design.md), [plan](superpowers/plans/2026-05-19-rag-chatbot.md), [ai-service/README.md](../ai-service/README.md)
 
 ### 기술 스택
-- LangChain, ChromaDB (or FAISS), sentence-transformers
-- Claude API (claude-sonnet-4-6)
-- Python FastAPI (기존 ai_service 확장)
+- LangChain (text splitter), ChromaDB (persistent), sentence-transformers
+- Claude API (claude-sonnet-4-6) — RAG 답변 + Tool Use 분류
+- Python FastAPI + python-dotenv
+- Spring MVC + RestTemplate (Java 호출 경로)
 
 ### 난이도 / 기간
-- 낮음~보통 / 1~2일 (기존 챗봇 인프라 재활용)
+- 보통 / 2.5일 (브레인스토밍·spec·plan 포함)
 
 ### 이력서 포인트
-> LangChain + ChromaDB RAG 파이프라인 설계, Claude API 연동 지식 챗봇 고도화
+> LangChain + ChromaDB 기반 한국어 RAG 챗봇 설계·구현. 키워드 사전과 Claude Tool Use 분류기를 결합한 하이브리드 Intent Router로 KNOWLEDGE/ADVICE 경로를 동적 분기. Citation 자동 첨부로 hallucination 방지, 골든셋 20문항 기반 retrieval@k·answer faithfulness 정량 평가.
 
 ---
 
@@ -146,6 +151,6 @@ LangGraph 병렬 노드로 Stadium + Team 동시 검색 후 Match 생성.
 
 ## 다음 단계
 
-1. **브레인스토밍 #1**: 기능 2 (RAG 챗봇) — `docs/superpowers/specs/` 에 spec.md 생성
+1. ~~**브레인스토밍 #1**: 기능 2 (RAG 챗봇)~~ ✅ 2026-05-19 구현 완료
 2. **브레인스토밍 #2**: 기능 3 (LangGraph 에이전트)
 3. **브레인스토밍 #3**: 기능 1 (ML 포즈 분석)
