@@ -128,7 +128,17 @@
           body: JSON.stringify({message: msg})
         })
         .then(function(res) { return res.json(); })
-        .then(function(data) { addBubble(data.message || data.error || '오류가 발생했습니다.', false); })
+        .then(function(data) {
+          var text = data.message || data.error || '오류가 발생했습니다.';
+          if (data.mode === 'RAG' && Array.isArray(data.citations) && data.citations.length) {
+            var refs = data.citations.map(function(c) {
+              var p = c.page ? ' p.' + c.page : '';
+              return '[' + c.source + (c.section ? ' / ' + c.section : '') + p + ']';
+            }).join(' ');
+            text += '\n\n📚 ' + refs;
+          }
+          addBubble(text, false);
+        })
         .catch(function() { addBubble('연결 오류가 발생했습니다.', false); });
       }
     </script>

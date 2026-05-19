@@ -42,12 +42,34 @@ Controller → Service → Mapper(interface) → MyBatis XML → MySQL
 - **View**: `src/main/webapp/WEB-INF/views/[domain]/*.jsp`
 
 ### 도메인 목록
-`user`, `team`, `match`, `stadium`, `board`(자유게시판), `rank`
+`user`, `team`, `match`, `stadium`, `board`(자유게시판), `rank`, `ai`(챗봇 + RAG)
 
 ### 인증
 - `LoginInterceptor` — 세션의 `loginUser` 속성으로 로그인 여부 확인, 미로그인 시 `/user/login` 리다이렉트
 - 세션 키: `loginUser` (UserDTO 객체)
 - **주의**: 비밀번호가 평문 저장됨 (`UserService.register` 참고) — 암호화 미구현 상태
+
+### AI 기능 구조
+
+챗봇은 **하이브리드 라우터 + RAG** 구조 — 풋살 지식 질문은 Python ai-service의 RAG 파이프라인으로, 개인 조언은 Spring에서 Claude API 직접 호출.
+
+```
+[브라우저 챗봇 위젯] → POST /ai/chat → ChatController → AiService.chat()
+   │
+   ├─ IntentRouter.route(message)
+   │   ├─ keyword 사전(오프사이드, 포메이션, 압박 등) 직격 → KNOWLEDGE
+   │   └─ keyword miss → RagClient.classify() (Python /router/classify, Claude Tool Use)
+   │
+   ├─ KNOWLEDGE → RagClient.askRag() → Python /chat/rag → ChromaDB 검색 + Claude 답변 + citation
+   │             실패 시 chatAdvice()로 폴백
+   └─ ADVICE → chatAdvice() → Claude API 직접 호출 (개인화 시스템 프롬프트)
+```
+
+- **Spring 측**: `ai/AiService.java`, `ai/ChatController.java`, `ai/IntentRouter.java`, `ai/RagClient.java`, `ai/RecommendService.java`
+- **DTO**: `dto/ChatRequestDTO.java`, `dto/ChatResponseDTO.java` (`message`/`mode`/`citations`), `dto/CitationDTO.java`
+- **Python ai-service** (`ai-service/`): FastAPI + LangChain + ChromaDB + sentence-transformers(`jhgan/ko-sroberta-multitask`) + Anthropic SDK. 자세한 구조·실행·평가는 [`ai-service/README.md`](ai-service/README.md) 참고.
+- **환경 변수**: `CLAUDE_API_KEY` (Spring·Python 공유), `AI_SERVICE_URL` (기본 `http://localhost:8000`)
+- **레이트 리미트**: 챗봇 세션당 일일 30회 (`ChatController.DAILY_LIMIT`)
 
 ### MyBatis 설정 특이사항
 - `mapUnderscoreToCamelCase=true` — DB 컬럼 `snake_case` → Java 필드 `camelCase` 자동 변환

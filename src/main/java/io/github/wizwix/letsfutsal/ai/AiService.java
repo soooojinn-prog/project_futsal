@@ -1,18 +1,19 @@
 package io.github.wizwix.letsfutsal.ai;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.wizwix.letsfutsal.dto.ChatResponseDTO;
 import io.github.wizwix.letsfutsal.dto.MatchDTO;
 import io.github.wizwix.letsfutsal.dto.UserDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.web.util.HtmlUtils;
-
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Collections;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.util.HtmlUtils;
 
 @Service
 public class AiService {
@@ -22,10 +23,14 @@ public class AiService {
 
   private final HttpClient httpClient = HttpClient.newHttpClient();
   private final ObjectMapper objectMapper;
+  private final IntentRouter intentRouter;
+  private final RagClient ragClient;
   private final String apiKey;
 
-  public AiService(ObjectMapper objectMapper) {
+  public AiService(ObjectMapper objectMapper, IntentRouter intentRouter, RagClient ragClient) {
     this.objectMapper = objectMapper;
+    this.intentRouter = intentRouter;
+    this.ragClient = ragClient;
     String raw = System.getenv("CLAUDE_API_KEY");
     this.apiKey = (raw != null) ? raw.trim() : null;
     if (this.apiKey == null || this.apiKey.isBlank()) {
@@ -35,27 +40,55 @@ public class AiService {
     }
   }
 
-  public String chat(UserDTO user, String rawMessage, List<MatchDTO> recentMatches) {
+  public ChatResponseDTO chat(UserDTO user, String rawMessage, List<MatchDTO> recentMatches) {
     if (apiKey == null || apiKey.isBlank()) {
-      return "AI 서비스가 설정되지 않았습니다. (서버에 API 키가 없습니다)";
+      return new ChatResponseDTO(
+          "AI 서비스가 설정되지 않았습니다. (서버에 API 키가 없습니다)",
+          ChatResponseDTO.Mode.ADVICE,
+          Collections.emptyList());
     }
 
-    String message = rawMessage.length() > MAX_MESSAGE_LENGTH
-        ? rawMessage.substring(0, MAX_MESSAGE_LENGTH)
-        : rawMessage;
-    message = HtmlUtils.htmlEscape(message);
+    String message =
+        rawMessage.length() > MAX_MESSAGE_LENGTH
+            ? rawMessage.substring(0, MAX_MESSAGE_LENGTH)
+            : rawMessage;
+    String safeMessage = HtmlUtils.htmlEscape(message);
 
+    IntentRouter.Decision decision = intentRouter.route(safeMessage);
+    log.info(
+        "Routing: keywordHit={}, intent={}", decision.keywordHit(), decision.intent());
+
+    if (decision.intent() == RagClient.Intent.KNOWLEDGE) {
+      try {
+        RagClient.RagResult result = ragClient.askRag(user, safeMessage);
+        return new ChatResponseDTO(
+            result.answer(), ChatResponseDTO.Mode.RAG, result.citations());
+      } catch (RagClient.RagUnavailableException e) {
+        log.warn("RAG 실패 → ADVICE 폴백: {}", e.getMessage());
+        // fallthrough
+      }
+    }
+
+    return new ChatResponseDTO(
+        chatAdvice(user, safeMessage, recentMatches),
+        ChatResponseDTO.Mode.ADVICE,
+        Collections.emptyList());
+  }
+
+  String chatAdvice(UserDTO user, String message, List<MatchDTO> recentMatches) {
     try {
       String requestBody = buildRequestBody(buildSystemPrompt(user, recentMatches), message);
-      HttpRequest request = HttpRequest.newBuilder()
-          .uri(URI.create(CLAUDE_API_URL))
-          .header("Content-Type", "application/json")
-          .header("x-api-key", apiKey)
-          .header("anthropic-version", "2023-06-01")
-          .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-          .build();
+      HttpRequest request =
+          HttpRequest.newBuilder()
+              .uri(URI.create(CLAUDE_API_URL))
+              .header("Content-Type", "application/json")
+              .header("x-api-key", apiKey)
+              .header("anthropic-version", "2023-06-01")
+              .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+              .build();
 
-      HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+      HttpResponse<String> response =
+          httpClient.send(request, HttpResponse.BodyHandlers.ofString());
       log.info("Claude API 응답 상태코드: {}", response.statusCode());
       if (response.statusCode() != 200) {
         log.error("Claude API 오류 응답: {}", response.body());
@@ -63,7 +96,11 @@ public class AiService {
       }
       return parseResponse(response.body());
     } catch (Exception e) {
-      log.error("Claude API 호출 중 예외 발생: {} - {}", e.getClass().getSimpleName(), e.getMessage(), e);
+      log.error(
+          "Claude API 호출 중 예외 발생: {} - {}",
+          e.getClass().getSimpleName(),
+          e.getMessage(),
+          e);
       return "AI 서비스 오류: " + e.getClass().getSimpleName() + " - " + e.getMessage();
     }
   }
@@ -73,13 +110,15 @@ public class AiService {
     sb.append("당신은 풋살 전문 AI 어시스턴트입니다.\n");
     sb.append("현재 유저 정보:\n");
     sb.append("- 닉네임: ").append(user.getNickname()).append("\n");
-    sb.append("- 선호 포지션: ").append(
-        user.getPreferredPosition() != null ? user.getPreferredPosition() : "없음").append("\n");
+    sb.append("- 선호 포지션: ")
+        .append(user.getPreferredPosition() != null ? user.getPreferredPosition() : "없음")
+        .append("\n");
     sb.append("- 실력 등급: ").append(user.getGrade()).append("\n");
     if (recentMatches != null && !recentMatches.isEmpty()) {
       sb.append("- 최근 매치: ");
-      recentMatches.stream().limit(3).forEach(m ->
-          sb.append(m.getMatchDate()).append(" ").append(m.getRegion()).append(" | "));
+      recentMatches.stream()
+          .limit(3)
+          .forEach(m -> sb.append(m.getMatchDate()).append(" ").append(m.getRegion()).append(" | "));
     }
     sb.append("\n이 정보를 바탕으로 개인화된 풋살 조언을 제공하세요. ");
     sb.append("풋살과 무관한 질문은 정중히 거절하세요.");
