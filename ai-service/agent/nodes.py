@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import date as _date, timedelta
+
 from rag.claude_client import ClaudeClient
 
 from .state import AgentState
@@ -24,19 +26,30 @@ INTENT_TOOL = {
     },
 }
 
-PARSE_SYSTEM = (
-    "당신은 풋살 매치 코디네이터의 의도 분류기입니다. "
-    "사용자 입력에서 SINGLE(단일 매치)/TOURNAMENT(토너먼트)를 분류하고, "
-    "지역·날짜 범위·팀 수를 슬롯으로 추출하세요. "
-    "정보가 없으면 해당 슬롯을 비웁니다. extract_intent 도구로 반환하세요."
-)
+def _build_parse_system() -> str:
+    today = _date.today()
+    weekday_names = ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"]
+    this_sat = today + timedelta(days=(5 - today.weekday()) % 7)
+    this_sun = today + timedelta(days=(6 - today.weekday()) % 7)
+    next_mon = today + timedelta(days=(7 - today.weekday()) % 7 or 7)
+    return (
+        "당신은 풋살 매치 코디네이터의 의도 분류기입니다. "
+        "사용자 입력에서 SINGLE(단일 매치)/TOURNAMENT(토너먼트)를 분류하고, "
+        "지역·날짜 범위·팀 수를 슬롯으로 추출하세요.\n\n"
+        f"**기준 날짜**: 오늘은 {today.isoformat()} ({weekday_names[today.weekday()]})입니다.\n"
+        f"- '이번 주말' = {this_sat.isoformat()}(토) ~ {this_sun.isoformat()}(일)\n"
+        f"- '다음 주' = {next_mon.isoformat()}부터 시작하는 주\n"
+        "- 사용자가 날짜를 명시하지 않으면 가장 가까운 토요일을 기본값으로 사용하세요.\n"
+        "- 모든 날짜는 ISO 형식(YYYY-MM-DD)으로 반환하세요.\n\n"
+        "정보가 없으면 해당 슬롯을 비웁니다. extract_intent 도구로 반환하세요."
+    )
 
 
 def parse_intent(state: AgentState, claude_client: ClaudeClient) -> AgentState:
-    """사용자 입력을 intent + slots로 분류."""
+    """사용자 입력을 intent + slots로 분류 (현재 날짜 컨텍스트 포함)."""
     try:
         result = claude_client.chat_with_tool(
-            system=PARSE_SYSTEM,
+            system=_build_parse_system(),
             user=state["user_input"],
             tool=INTENT_TOOL,
         )
@@ -115,11 +128,14 @@ def single_match_node(state: AgentState, tools: Tools) -> AgentState:
     proposals: list[dict] = []
     date = state["slots"].get("date_from") or ""
     if not date:
-        # LLM이 날짜 추출 못한 경우 — 다음 토요일 사용
+        # LLM이 날짜 추출 못한 경우 — 오늘 기준 가장 가까운 토요일
         today = _date.today()
-        next_sat = today + timedelta(days=(5 - today.weekday()) % 7 or 7)
+        days_to_sat = (5 - today.weekday()) % 7
+        next_sat = today + timedelta(days=days_to_sat)
         date = next_sat.isoformat()
-        state["warnings"].append(f"날짜가 명시되지 않아 다음 주말({date})로 가정합니다.")
+        state["warnings"].append(
+            f"날짜가 명시되지 않아 이번 주 토요일({date})로 가정합니다."
+        )
 
     for stadium in candidates[:5]:
         slots = tools.list_stadium_slots(stadium["id"], date)
