@@ -6,6 +6,8 @@ import io.github.wizwix.letsfutsal.dto.UserDTO;
 import io.github.wizwix.letsfutsal.mapper.MatchMapper;
 import io.github.wizwix.letsfutsal.mapper.StadiumMapper;
 import io.github.wizwix.letsfutsal.mapper.TeamMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -43,14 +45,14 @@ public class AgentDataController {
   /**
    * 검색어로 경기장 검색. region 또는 name 양쪽 부분일치 (LLM이 "강남" 추출했을 때 광역 region이 "서울"이라도 stadium name이 "강남구장"이면 매치).
    * region 비어있으면 전체 반환. Python Tool 호환 위해 {id, name, region}만 추출.
+   *
+   * <p>region을 raw query string에서 직접 추출 + UTF-8 percent-decode — Tomcat URI 인코딩 환경에 무관.
    */
   @GetMapping("/stadium")
-  public List<Map<String, Object>> searchStadium(
-      @RequestParam(required = false) String region,
-      @RequestParam(required = false) String dateFrom,
-      @RequestParam(required = false) String dateTo) {
+  public List<Map<String, Object>> searchStadium(HttpServletRequest request) {
+    String region = extractQueryParam(request.getQueryString(), "region");
     List<StadiumDTO> raw = stadiumMapper.selectAllStadiums();
-    String q = region == null ? "" : fixKoreanEncoding(region.trim());
+    String q = region == null ? "" : region.trim();
     List<Map<String, Object>> out = new ArrayList<>();
     for (StadiumDTO s : raw) {
       if (!q.isEmpty()
@@ -112,23 +114,20 @@ public class AgentDataController {
         teamId, LocalDate.parse(dateFrom), LocalDate.parse(dateTo));
   }
 
-  /**
-   * Tomcat이 URI를 ISO-8859-1로 디코딩한 경우 깨진 한글을 UTF-8로 재해석. 정상 UTF-8이면 변환해도 결과 동일.
-   */
-  private static String fixKoreanEncoding(String s) {
-    if (s == null || s.isEmpty()) return s;
-    try {
-      String repaired =
-          new String(s.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-      // 재해석 결과가 한글 범위면 그것을 사용, 아니면 원본 유지
-      for (int i = 0; i < repaired.length(); i++) {
-        char c = repaired.charAt(i);
-        if (c >= 0xAC00 && c <= 0xD7A3) {
-          return repaired;
+  /** raw query string에서 특정 키의 값을 percent-decode하여 반환. Tomcat URI 인코딩 무관. */
+  private static String extractQueryParam(String queryString, String key) {
+    if (queryString == null || queryString.isEmpty()) return null;
+    String prefix = key + "=";
+    for (String pair : queryString.split("&")) {
+      if (pair.startsWith(prefix)) {
+        String raw = pair.substring(prefix.length());
+        try {
+          return URLDecoder.decode(raw, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+          return raw;
         }
       }
-    } catch (Exception ignored) {
     }
-    return s;
+    return null;
   }
 }
