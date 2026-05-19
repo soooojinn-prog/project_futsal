@@ -136,3 +136,51 @@ def test_single_review_node_validates_at_least_one_proposal():
     ]
     new_state = single_review_node(state, tools=MagicMock())
     assert new_state.get("errors", []) == []
+
+
+# ---------- 토너먼트 흐름 노드 ----------
+from agent.nodes import summarize_node, tournament_assemble_node
+
+
+def _tournament_state(team_count=4):
+    s = make_initial_state("4팀 토너먼트", user_id=1)
+    s["intent"] = "TOURNAMENT"
+    s["slots"] = {
+        "region": "강남",
+        "date_from": "2026-05-26",
+        "date_to": "2026-05-26",
+        "team_count": team_count,
+    }
+    s["team_info"] = {
+        "team_ids": [1, 2, 3, 4],
+        "team_names": {1: "A", 2: "B", 3: "C", 4: "D"},
+    }
+    return s
+
+
+def test_tournament_assemble_combines_subagent_results():
+    tools = MagicMock()
+    tools.search_stadium.return_value = [{"id": 10, "name": "강남"}]
+    tools.list_stadium_slots.return_value = [
+        {"start": "2026-05-26T10:00", "end": "2026-05-26T11:00"},
+        {"start": "2026-05-26T11:00", "end": "2026-05-26T12:00"},
+        {"start": "2026-05-26T12:00", "end": "2026-05-26T13:00"},
+    ]
+    tools.list_team_members.return_value = []
+    tools.find_team_conflicts.return_value = []
+
+    state = _tournament_state()
+    new_state = tournament_assemble_node(state, tools=tools)
+
+    assert new_state["bracket"] is not None
+    assert len(new_state["proposals"]) == 3
+
+
+def test_summarize_node_adds_proposal_id():
+    state = _tournament_state()
+    state["proposals"] = [
+        {"stadium_id": 1, "start_time": "2026-05-26T10:00", "duration_min": 60}
+    ]
+    new_state = summarize_node(state)
+    assert "proposal_id" in new_state
+    assert new_state["proposal_id"].startswith("prop_")

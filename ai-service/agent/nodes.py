@@ -143,3 +143,61 @@ def single_review_node(state: AgentState, tools: Tools) -> AgentState:
     if not state["proposals"] and not state["warnings"]:
         state["warnings"].append("적합한 매치 슬롯이 없습니다.")
     return state
+
+
+# ---------- 토너먼트 흐름 노드 ----------
+import uuid
+from concurrent.futures import ThreadPoolExecutor
+
+from .subagents import MatchAgent, StadiumAgent, TeamAgent
+
+
+def tournament_assemble_node(state: AgentState, tools: Tools) -> AgentState:
+    """3개 sub-agent를 병렬 실행 후 결과 통합."""
+    slots = state["slots"]
+    team_info = state["team_info"]
+    team_ids: list[int] = team_info.get("team_ids", [])
+    date = slots.get("date_from", "")
+
+    stadium_agent = StadiumAgent(tools=tools)
+    team_agent = TeamAgent(tools=tools)
+    match_agent = MatchAgent()
+
+    needed_matches = max(len(team_ids) - 1, 1)
+
+    with ThreadPoolExecutor(max_workers=2) as ex:
+        f_stadium = ex.submit(
+            stadium_agent.run, slots.get("region"), date, needed_matches
+        )
+        f_team = ex.submit(
+            team_agent.run, team_ids, date, slots.get("date_to", date)
+        )
+        stadium_result = f_stadium.result()
+        team_result = f_team.result()
+
+    teams_with_names = [
+        {
+            "id": t["id"],
+            "name": team_info.get("team_names", {}).get(t["id"], str(t["id"])),
+        }
+        for t in team_result["teams"]
+    ]
+
+    match_result = match_agent.run(
+        teams=teams_with_names, slots=stadium_result["slots"]
+    )
+
+    state["stadium_candidates"] = stadium_result["candidates"]
+    state["team_info"] = {**team_info, "details": team_result["teams"]}
+    state["bracket"] = match_result["bracket"]
+    state["proposals"] = match_result["proposals"]
+    state["warnings"].extend(match_result.get("warnings", []))
+    return state
+
+
+def summarize_node(state: AgentState) -> AgentState:
+    """proposal_id 부여 + 최종 정리."""
+    state["proposal_id"] = "prop_" + uuid.uuid4().hex[:8]
+    if not state["proposals"] and not state["errors"]:
+        state["warnings"].append("제안할 매치가 없습니다. 조건을 완화해보세요.")
+    return state
