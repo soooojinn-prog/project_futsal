@@ -55,29 +55,37 @@
     <div class="container">
       <ul class="nav nav-pills justify-content-center py-2">
         <li class="nav-item">
-          <a class="nav-link ${param.menu == 'match'   ? 'active' : ''}" href="${pageContext.request.contextPath}/match">⚽ 매치</a>
+          <a class="nav-link ${param.menu == 'match'   ? 'active' : ''}" href="${pageContext.request.contextPath}/match"><span class="nav-emoji">⚽</span> 매치</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link ${param.menu == 'team'    ? 'active' : ''}" href="${pageContext.request.contextPath}/team">👥 팀</a>
+          <a class="nav-link ${param.menu == 'team'    ? 'active' : ''}" href="${pageContext.request.contextPath}/team"><span class="nav-emoji">👥</span> 팀</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link ${param.menu == 'stadium' ? 'active' : ''}" href="${pageContext.request.contextPath}/stadium">🏟️ 구장</a>
+          <a class="nav-link ${param.menu == 'stadium' ? 'active' : ''}" href="${pageContext.request.contextPath}/stadium"><span class="nav-emoji">🏟️</span> 구장</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link ${param.menu == 'rank'    ? 'active' : ''}" href="${pageContext.request.contextPath}/rank">🏆 랭킹</a>
+          <a class="nav-link ${param.menu == 'rank'    ? 'active' : ''}" href="${pageContext.request.contextPath}/rank"><span class="nav-emoji">🏆</span> 랭킹</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link ${param.menu == 'board'   ? 'active' : ''}" href="${pageContext.request.contextPath}/free">📋 게시판</a>
+          <a class="nav-link ${param.menu == 'board'   ? 'active' : ''}" href="${pageContext.request.contextPath}/free"><span class="nav-emoji">📋</span> 게시판</a>
         </li>
         <c:if test="${not empty loginUser}">
         <li class="nav-item">
-          <a class="nav-link ${param.menu == 'coordinator' ? 'active' : ''}" href="${pageContext.request.contextPath}/ai/coordinator">🤖 AI 코디네이터</a>
+          <a class="nav-link ${param.menu == 'coordinator' ? 'active' : ''}" href="${pageContext.request.contextPath}/ai/coordinator"><span class="nav-emoji">🤖</span> AI 코디네이터</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link ${param.menu == 'pose' ? 'active' : ''}" href="${pageContext.request.contextPath}/ai/pose">🏃 자세 분석</a>
+          <a class="nav-link ${param.menu == 'pose' ? 'active' : ''}" href="${pageContext.request.contextPath}/ai/pose"><span class="nav-emoji">🏃</span> 자세 분석</a>
         </li>
         </c:if>
       </ul>
+      <style>
+        .nav-emoji {
+          color: initial !important;
+          -webkit-text-fill-color: initial !important;
+          text-shadow: none !important;
+          font-style: normal;
+        }
+      </style>
     </div>
   </nav>
   <!-- 메인 -->
