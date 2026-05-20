@@ -55,20 +55,28 @@
     <div class="container">
       <ul class="nav nav-pills justify-content-center py-2">
         <li class="nav-item">
-          <a class="nav-link ${param.menu == 'match' ? 'active' : ''}" href="${pageContext.request.contextPath}/match">매치</a>
+          <a class="nav-link ${param.menu == 'match'   ? 'active' : ''}" href="${pageContext.request.contextPath}/match">⚽ 매치</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link ${param.menu == 'team' ? 'active' : ''}" href="${pageContext.request.contextPath}/team">팀</a>
+          <a class="nav-link ${param.menu == 'team'    ? 'active' : ''}" href="${pageContext.request.contextPath}/team">👥 팀</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link ${param.menu == 'stadium' ? 'active' : ''}" href="${pageContext.request.contextPath}/stadium">구장</a>
+          <a class="nav-link ${param.menu == 'stadium' ? 'active' : ''}" href="${pageContext.request.contextPath}/stadium">🏟️ 구장</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link ${param.menu == 'rank' ? 'active' : ''}" href="${pageContext.request.contextPath}/rank">랭킹</a>
+          <a class="nav-link ${param.menu == 'rank'    ? 'active' : ''}" href="${pageContext.request.contextPath}/rank">🏆 랭킹</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link ${param.menu == 'board' ? 'active' : ''}" href="${pageContext.request.contextPath}/free">게시판</a>
+          <a class="nav-link ${param.menu == 'board'   ? 'active' : ''}" href="${pageContext.request.contextPath}/free">📋 게시판</a>
         </li>
+        <c:if test="${not empty loginUser}">
+        <li class="nav-item">
+          <a class="nav-link ${param.menu == 'coordinator' ? 'active' : ''}" href="${pageContext.request.contextPath}/ai/coordinator">🤖 AI 코디네이터</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link ${param.menu == 'pose' ? 'active' : ''}" href="${pageContext.request.contextPath}/ai/pose">🏃 자세 분석</a>
+        </li>
+        </c:if>
       </ul>
     </div>
   </nav>
