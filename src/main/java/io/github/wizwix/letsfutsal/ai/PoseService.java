@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -60,6 +61,13 @@ public class PoseService {
     } catch (IOException e) {
       log.warn("Pose 분석 영상 읽기 실패: {}", e.getMessage());
       throw new RuntimeException("영상 파일을 읽을 수 없습니다.", e);
+    } catch (HttpStatusCodeException e) {
+      // Python에서 503/400 등 의도된 상태 코드로 응답한 경우 — 상태 코드를 메시지에 보존해서
+      // PoseController가 적절한 친절 메시지로 변환할 수 있게 함.
+      int code = e.getStatusCode().value();
+      String detail = e.getResponseBodyAsString();
+      log.warn("Pose 분석 Python 응답 오류 {}: {}", code, detail);
+      throw new RuntimeException("HTTP " + code + ": " + detail, e);
     } catch (Exception e) {
       log.warn("Pose 분석 호출 실패: {}", e.getMessage());
       throw new RuntimeException("자세 분석 서비스 호출 실패", e);
