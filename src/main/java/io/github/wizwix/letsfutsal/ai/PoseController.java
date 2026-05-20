@@ -52,9 +52,29 @@ public class PoseController {
       return ResponseEntity.status(429)
           .body(Map.of("error", "오늘 사용 한도(10회)에 도달했어요."));
     }
-    PoseAnalysisDTO dto = poseService.analyze(file);
-    incrementCount(session);
-    return ResponseEntity.ok(dto);
+    try {
+      PoseAnalysisDTO dto = poseService.analyze(file);
+      incrementCount(session);
+      return ResponseEntity.ok(dto);
+    } catch (RuntimeException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "";
+      String friendly;
+      int status;
+      if (msg.contains("503") || msg.contains("초기화") || msg.contains("로드")) {
+        friendly = "자세 분석 AI 모델이 아직 준비되지 않았어요. 학습 데이터 수집·모델 학습이 완료되면 사용할 수 있습니다.";
+        status = 503;
+      } else if (msg.contains("사람이 보이지") || msg.contains("400")) {
+        friendly = "영상에서 사람을 인식하지 못했어요. 다른 영상으로 시도해 주세요.";
+        status = 400;
+      } else if (msg.contains("Connection") || msg.contains("timeout") || msg.contains("연결")) {
+        friendly = "분석 서버에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.";
+        status = 502;
+      } else {
+        friendly = "자세 분석 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.";
+        status = 500;
+      }
+      return ResponseEntity.status(status).body(Map.of("error", friendly));
+    }
   }
 
   private boolean isRateLimited(HttpSession session) {
