@@ -20,6 +20,17 @@ from agent.schemas import (
 from agent.springboot_client import SpringbootClient
 from agent.state import make_initial_state
 from agent.tools import Tools
+from pose.classifier import PoseClassifier
+from pose.extractor import PoseExtractor
+from pose.features import FeatureBuilder
+from pose.feedback import FeedbackGenerator
+from pose.schemas import (
+    CLASS_NAMES_KO,
+    AngleStats,
+    KeyAngles,
+    PoseAnalysisResponse,
+    TimingMs,
+)
 from rag.chain import RagChain
 from rag.claude_client import ClaudeClient
 from rag.retriever import open_persistent_retriever
@@ -37,7 +48,13 @@ rag_chain: RagChain | None = None
 router_classifier: RouterClassifier | None = None
 agent_graph = None
 
+pose_extractor: PoseExtractor | None = None
+pose_features: FeatureBuilder | None = None
+pose_classifier: PoseClassifier | None = None
+pose_feedback: FeedbackGenerator | None = None
+
 CHROMA_DIR = Path(os.environ.get("RAG_CHROMA_DIR", "data/chroma_db"))
+POSE_MODEL_PATH = Path(os.environ.get("POSE_MODEL_PATH", "models/best.joblib"))
 
 
 @asynccontextmanager
@@ -58,6 +75,14 @@ async def lifespan(app: FastAPI):
         spring_client = SpringbootClient()
         agent_tools = Tools(client=spring_client)
         agent_graph = build_agent_graph(claude_client=claude, tools=agent_tools)
+
+        # Pose 분석 (모델 파일 있을 때만 활성)
+        global pose_extractor, pose_features, pose_classifier, pose_feedback
+        pose_extractor = PoseExtractor(sample_fps=10, max_frames=300)
+        pose_features = FeatureBuilder()
+        if POSE_MODEL_PATH.exists():
+            pose_classifier = PoseClassifier(POSE_MODEL_PATH)
+            pose_feedback = FeedbackGenerator(claude_client=claude)
     yield
 
 
@@ -124,6 +149,91 @@ def _match_dict_to_proposal(m: dict) -> MatchProposal:
         team_a=_team(m.get("team_a")) or TeamSummary(name="내 팀"),
         team_b=_team(m.get("team_b")),
         stage=m.get("stage"),
+    )
+
+
+import tempfile
+import time as _time
+
+import numpy as np
+from fastapi import File, UploadFile
+
+
+def _key_angles_from_landmarks(landmarks_per_frame) -> KeyAngles:
+    from pose.features import (
+        LEFT_ANKLE,
+        LEFT_FOOT,
+        LEFT_HIP,
+        LEFT_KNEE,
+        RIGHT_ANKLE,
+        RIGHT_FOOT,
+        RIGHT_HIP,
+        RIGHT_KNEE,
+        FeatureBuilder,
+    )
+
+    fb = FeatureBuilder()
+    triples = {
+        "left_knee": (LEFT_HIP, LEFT_KNEE, LEFT_ANKLE),
+        "right_knee": (RIGHT_HIP, RIGHT_KNEE, RIGHT_ANKLE),
+        "left_ankle": (LEFT_KNEE, LEFT_ANKLE, LEFT_FOOT),
+        "right_ankle": (RIGHT_KNEE, RIGHT_ANKLE, RIGHT_FOOT),
+    }
+    stats: dict[str, AngleStats] = {}
+    for name, (a, b, c) in triples.items():
+        vals = [fb._joint_angle(lm, a, b, c) for lm in landmarks_per_frame]
+        arr = np.array(vals)
+        stats[name] = AngleStats(
+            mean=float(arr.mean()), min=float(arr.min()), max=float(arr.max())
+        )
+    return KeyAngles(**stats)
+
+
+@app.post("/pose/analyze", response_model=PoseAnalysisResponse)
+def pose_analyze(file: UploadFile = File(...)):
+    if pose_classifier is None or pose_feedback is None:
+        raise HTTPException(
+            status_code=503, detail="Pose 모델이 로드되지 않았습니다."
+        )
+
+    t0 = _time.perf_counter()
+    with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as f:
+        f.write(file.file.read())
+        tmp_path = f.name
+
+    t_frame_start = _time.perf_counter()
+    landmarks_per_frame = pose_extractor.extract_from_video(tmp_path)
+    t_frame_end = _time.perf_counter()
+
+    if not landmarks_per_frame:
+        raise HTTPException(status_code=400, detail="영상에서 사람이 보이지 않아요.")
+
+    feature_vec = pose_features.build_single(landmarks_per_frame)
+    t_features_end = _time.perf_counter()
+
+    pose_class, confidence, probs = pose_classifier.predict(feature_vec)
+    t_classify_end = _time.perf_counter()
+
+    key_angles = _key_angles_from_landmarks(landmarks_per_frame)
+
+    t_feedback_start = _time.perf_counter()
+    feedback = pose_feedback.generate(pose_class, confidence, key_angles)
+    t_feedback_end = _time.perf_counter()
+
+    return PoseAnalysisResponse(
+        pose_class=pose_class,
+        class_name=CLASS_NAMES_KO.get(pose_class, pose_class),
+        confidence=confidence,
+        class_probabilities=probs,
+        key_angles=key_angles,
+        feedback=feedback,
+        timing_ms=TimingMs(
+            frame_extract=int((t_frame_end - t_frame_start) * 1000),
+            mediapipe=int((t_features_end - t_frame_end) * 1000),
+            classify=int((t_classify_end - t_features_end) * 1000),
+            feedback=int((t_feedback_end - t_feedback_start) * 1000),
+            total=int((t_feedback_end - t0) * 1000),
+        ),
     )
 
 
