@@ -14,7 +14,31 @@
 
 ---
 
-## 기능 1. 풋살 킥·드리블 자세 분석기 (ML / 이미지)
+## 기능 1. 풋살 킥·드리블 자세 분석기 (ML / 이미지) ✅ 구현 완료 (2026-05-20)
+
+**핵심 기술**: MediaPipe Pose + scikit-learn/PyTorch 분류 모델 + Claude 자연어 피드백
+
+### 구현 결과
+- **MediaPipe + 33점 관절 추출**: OpenCV 영상 프레임 샘플링(10fps, 최대 300프레임) → MediaPipe Pose
+- **Feature engineering**: 관절 각도 12개 + 상대 위치 5점 × 2축 = 약 30차원 vector (시퀀스 평균·표준편차로 압축)
+- **모델 비교**: RandomForest + PyTorch MLP 동시 학습 → 정확도·F1·추론 시간 비교 → 우수 모델 1개를 `models/best.joblib` 또는 `best.pt`로 배포 (`models/model_card.md` 자동 작성)
+- **자연어 피드백**: 분류 결과 + 핵심 각도를 Claude에 전달 → 친근한 한국어 피드백 생성
+- **별도 페이지** `/ai/pose`: 영상 드래그·드롭 업로드 + 결과 카드 + 각도 통계 + 자연어 피드백 + 단계별 timing 표시
+- **정량 평가**: `eval/run_pose_eval.py` + 4지표(`service_accuracy`, `avg_total_ms`, `avg_mediapipe_ms`, `avg_feedback_ms`)
+
+### 산출물
+- Python: `ai-service/pose/` 6모듈 (`schemas`, `extractor`, `features`, `classifier`, `feedback`, `train`/`compare`) + `eval/run_pose_eval.py`
+- Java: `PoseController`, `PoseService`, DTO 3종(`PoseAnalysisDTO`, `KeyAnglesDTO`, `TimingMsDTO`)
+- JSP: `/ai/pose` 페이지 + `pose_analyzer.js`
+- 단위 테스트: Python 20개 + Java 4개 모두 통과
+- 관련: [spec](superpowers/specs/2026-05-20-pose-analysis-design.md), [plan](superpowers/plans/2026-05-20-pose-analysis.md)
+
+### 이력서 포인트
+> AI Hub 스포츠 자세 데이터셋 + MediaPipe 33개 관절 + scikit-learn RandomForest와 PyTorch MLP 비교 후 우수 모델 1개 배포. 학습 단계에서 정확도·F1·추론 속도 동시 측정하여 모델 선정 근거(`model_card.md`)를 기록. Claude 자연어 피드백 결합으로 ML+LLM 통합.
+
+---
+
+## (이전 기능 1 원본 — 참고용)
 
 **핵심 기술**: MediaPipe Pose + 커스텀 분류 모델
 
@@ -144,13 +168,15 @@ LangGraph 병렬 노드로 Stadium + Team 동시 검색 후 Match 생성.
 
 | 기술 | 기능 1 (ML) | 기능 2 (RAG) | 기능 3 (Agent) |
 |---|:---:|:---:|:---:|
-| LLM API 연동 | | ✅ | ✅ |
+| LLM API 연동 | ✅ | ✅ | ✅ |
 | AI Agent | | | ✅ |
 | LangChain | | ✅ | ✅ |
 | LangGraph | | | ✅ |
 | 멀티 에이전트 | | | ✅ |
 | RAG | | ✅ | |
 | ML / 컴퓨터 비전 | ✅ | | |
+
+**7개 기술 모두 커버 완료 (2026-05-20).**
 
 ---
 
@@ -168,4 +194,6 @@ LangGraph 병렬 노드로 Stadium + Team 동시 검색 후 Match 생성.
 
 1. ~~**브레인스토밍 #1**: 기능 2 (RAG 챗봇)~~ ✅ 2026-05-19 구현 완료
 2. ~~**브레인스토밍 #2**: 기능 3 (LangGraph 에이전트)~~ ✅ 2026-05-19 구현 완료
-3. **브레인스토밍 #3**: 기능 1 (ML 포즈 분석)
+3. ~~**브레인스토밍 #3**: 기능 1 (ML 포즈 분석)~~ ✅ 2026-05-20 구현 완료
+
+**모든 기능 구현 완료** — 7개 기술 모두 포트폴리오 커버.
