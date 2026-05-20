@@ -67,6 +67,9 @@
         <li class="nav-item">
           <a class="nav-link ${param.menu == 'coordinator' ? 'active' : ''}" href="${pageContext.request.contextPath}/ai/coordinator">🤖 AI 코디네이터</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link ${param.menu == 'pose' ? 'active' : ''}" href="${pageContext.request.contextPath}/ai/pose">🏃 자세 분석</a>
+        </li>
         </c:if>
       </ul>
     </div>
