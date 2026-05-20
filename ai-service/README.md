@@ -8,7 +8,8 @@
 - **RAG 챗봇** (`rag/`) — LangChain + ChromaDB + sentence-transformers + Claude API
 - **라우터** (`rag/router_classifier.py`) — Claude Tool Use로 KNOWLEDGE/ADVICE 의도 분류
 - **LangGraph 에이전트** (`agent/`) — 단일 매치 / 토너먼트 코디네이터, StateGraph + conditional edge + ThreadPoolExecutor 병렬 sub-agent
-- **평가** (`eval/`) — 골든셋 20문항(RAG) + 시나리오 8개(에이전트) 기반 정량 측정
+- **ML 자세 분석** (`pose/`) — MediaPipe + scikit-learn/PyTorch 분류 + Claude 자연어 피드백
+- **평가** (`eval/`) — 골든셋 20문항(RAG) + 시나리오 8개(에이전트) + 영상 테스트셋(Pose) 정량 측정
 
 ## 디렉토리
 
@@ -46,6 +47,7 @@ ai-service/
 | POST | `/chat/rag` | RAG 답변 + citation |
 | POST | `/router/classify` | KNOWLEDGE/ADVICE 분류 |
 | POST | `/agent/run` | LangGraph 에이전트 실행 → ProposalDTO |
+| POST | `/pose/analyze` | 영상(multipart) → 자세 분류 + 각도 + 자연어 피드백 |
 
 ## 설치
 
@@ -128,6 +130,28 @@ python -m eval.run_agent_eval
 - `e2e_success` — 전체 통과 (목표 ≥ 0.75)
 
 산출물: `eval/agent_report_<timestamp>.md` (덮어쓰기 방지로 매 실행마다 새 파일).
+
+## Pose 모델 학습
+
+AI Hub 스포츠 자세 영상 데이터로 feature CSV 생성 후:
+
+```powershell
+python -m pose.train --features data/pose_features.csv --out models/best.joblib
+```
+
+RandomForest와 PyTorch MLP 둘 다 학습 → 정확도·F1·추론 시간 비교 → 더 우수한 모델 1개를 `models/best.joblib`(또는 `best.pt`)로 저장. 선정 근거는 `models/model_card.md`.
+
+## Pose 평가
+
+```powershell
+python -m eval.run_pose_eval
+```
+
+4지표: `service_accuracy`, `avg_total_ms`, `avg_mediapipe_ms`, `avg_feedback_ms`.
+산출물: `eval/pose_report_<timestamp>.md` (덮어쓰기 방지).
+
+테스트 영상 디렉토리(`eval/pose_test_videos/`)에 라벨 prefix 파일명으로 영상 배치:
+- `GOOD_KICK_01.mp4`, `BAD_KICK_KNEE_LOCKED_02.mp4`, ...
 
 ## RAG 평가
 

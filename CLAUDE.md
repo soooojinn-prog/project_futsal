@@ -86,6 +86,24 @@ Controller → Service → Mapper(interface) → MyBatis XML → MySQL
 - **Python ai-service** (`ai-service/agent/`): LangGraph 0.2 + Tool 6개 + StateGraph + 3개 sub-agent
 - **인증**: `/api/agent-data/**`는 인터셉터 영향 없음 (내부 호출용 read-only)
 
+**ML 풋살 자세 분석기** (`/ai/pose` 페이지)
+
+별도 페이지에서 영상 업로드 → MediaPipe 33점 → feature engineering → 분류 모델 1개 → Claude 자연어 피드백.
+
+```
+사용자 mp4 업로드 → /ai/pose/analyze (multipart)
+  → PoseExtractor (OpenCV + MediaPipe)
+  → FeatureBuilder (관절 각도 12 + 상대 위치)
+  → PoseClassifier (RandomForest 또는 MLP, 학습 단계에서 선정한 1개)
+  → KeyAngleStats + FeedbackGenerator (Claude)
+  → PoseAnalysisResponse { pose_class, confidence, key_angles, feedback, timing_ms }
+```
+
+- **Spring 측**: `ai/PoseController.java`, `ai/PoseService.java`, `dto/PoseAnalysisDTO.java`, `dto/KeyAnglesDTO.java`, `dto/TimingMsDTO.java`
+- **Python ai-service** (`ai-service/pose/`): MediaPipe + scikit-learn + PyTorch + Claude. 학습은 `pose/train.py` (RF/MLP 비교 후 우수 모델 저장), 평가는 `eval/run_pose_eval.py`.
+- **환경 변수**: `POSE_MODEL_PATH` (기본 `models/best.joblib`)
+- **레이트 리미트**: 일일 10회 (`PoseController.DAILY_LIMIT`)
+
 ### MyBatis 설정 특이사항
 - `mapUnderscoreToCamelCase=true` — DB 컬럼 `snake_case` → Java 필드 `camelCase` 자동 변환
 - DB ENUM 컬럼은 커스텀 TypeHandler로 처리: `Gender`, `Match`, `EntityType`, `PreferredPosition`
