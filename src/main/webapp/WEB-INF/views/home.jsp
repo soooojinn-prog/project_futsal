@@ -104,6 +104,62 @@
         </div>
       </div>
     </section>
+
+    <!-- ✨ AI 기능 소개 (로그인 시 표시) -->
+    <c:if test="${not empty loginUser}">
+    <section class="container my-5">
+      <div class="d-flex align-items-center mb-3">
+        <h3 class="section-heading mb-0">✨ AI 기능</h3>
+        <span class="ms-2 text-muted small">LLM·LangGraph·MediaPipe 기반</span>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="card h-100 shadow-sm" style="background: linear-gradient(135deg, #1a1a1a, #232323); border: 1px solid rgba(0,212,163,0.25); color: #f5f5f5;">
+            <div class="card-body d-flex flex-column">
+              <div style="font-size: 36px; line-height: 1;">💬</div>
+              <h5 class="card-title mt-2" style="color: #00d4a3;">풋살 지식 챗봇</h5>
+              <p class="card-text small flex-grow-1" style="color: #a0a0a0;">
+                "오프사이드 규칙은?" 같은 풋살 질문을 물어보세요.
+                FIFA 규칙·전술 자료를 검색해 출처와 함께 답변해요.
+              </p>
+              <div class="mt-auto small" style="color: #00d4a3;">우측 하단 ⚽ 버튼 클릭 →</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <a href="${pageContext.request.contextPath}/ai/coordinator" class="text-decoration-none">
+            <div class="card h-100 shadow-sm" style="background: linear-gradient(135deg, #1a1a1a, #232323); border: 1px solid rgba(0,212,163,0.25); color: #f5f5f5; transition: transform 0.15s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 20px rgba(0,212,163,0.2)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+              <div class="card-body d-flex flex-column">
+                <div style="font-size: 36px; line-height: 1;">🤖</div>
+                <h5 class="card-title mt-2" style="color: #00d4a3;">AI 매치 코디네이터</h5>
+                <p class="card-text small flex-grow-1" style="color: #a0a0a0;">
+                  "이번 주말 강남에서 4팀 토너먼트 잡아줘" 한 줄이면
+                  경기장·시간·대진표까지 자동으로 기획해드려요.
+                </p>
+                <div class="mt-auto small" style="color: #00d4a3;">바로 사용하기 →</div>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="col-md-4">
+          <a href="${pageContext.request.contextPath}/ai/pose" class="text-decoration-none">
+            <div class="card h-100 shadow-sm" style="background: linear-gradient(135deg, #1a1a1a, #232323); border: 1px solid rgba(0,212,163,0.25); color: #f5f5f5; transition: transform 0.15s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 20px rgba(0,212,163,0.2)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+              <div class="card-body d-flex flex-column">
+                <div style="font-size: 36px; line-height: 1;">🏃</div>
+                <h5 class="card-title mt-2" style="color: #00d4a3;">AI 자세 분석</h5>
+                <p class="card-text small flex-grow-1" style="color: #a0a0a0;">
+                  킥·드리블 영상을 올리면 MediaPipe로 33개 관절을 분석하고
+                  자세 분류 + 자연어 피드백을 받아볼 수 있어요.
+                </p>
+                <div class="mt-auto small" style="color: #00d4a3;">영상 업로드하기 →</div>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+    </c:if>
+
     <!-- 임박한 매치 -->
     <div class="container my-5">
       <h3 class="section-heading mb-4">임박한 매치</h3>
