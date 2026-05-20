@@ -7,6 +7,31 @@
 
 ---
 
+## ⚠️ 2026-05-20 Update — 클래스 재설계
+
+AI Hub "축구 킥 동작 및 축구공 궤적" 데이터셋을 채택하면서 분류 클래스를 다음과 같이 재정의했다 (드리블/패스 데이터셋이 별도 신청 대상이고 용량이 큼).
+
+| 옛 (4 class, 본 문서 본문) | → | 새 (3 class, 실제 구현) |
+|---|---|---|
+| GOOD_KICK / BAD_KICK_KNEE_LOCKED | → | **INSIDE_KICK** (인사이드킥) |
+| GOOD_DRIBBLE / BAD_DRIBBLE_OVERREACH | → | **INSTEP_KICK** (인스텝킥) |
+| — | → | **INFRONT_KICK** (인프런트킥) |
+
+- 분류기는 **킥 종류**만 학습 (good/bad 라벨 데이터 수급 불가)
+- 자세 품질 판정은 `key_angles` + Claude 프롬프트의 종류별 기준 각도 비교로 대체
+  - 인사이드킥: 디딤발 무릎 150~165°, 차는 발목 외전(~90°)
+  - 인스텝킥: 디딤발 무릎 135~155°, 차는 발목 120~135°
+  - 인프런트킥: 디딤발 무릎 140~160°, 차는 발목 100~120°
+
+### Phase 2 백로그 (드리블·패스 확장)
+- 별도 AI Hub 데이터셋(드리블/볼 컨트롤) 신청 필요
+- PoseClass에 `DRIBBLE`, `PASS` 등 추가, 재학습
+- 본 문서 본문의 4-class 설계는 Phase 2 시 부분적으로 복원 가능
+
+이 Update 이후 본문에 등장하는 `GOOD_KICK`/`BAD_KICK_KNEE_LOCKED`/`GOOD_DRIBBLE`/`BAD_DRIBBLE_OVERREACH` 표기는 모두 위 3개 클래스로 치환해 읽는다.
+
+---
+
 ## 1. 목표 및 배경
 
 기능 2(RAG)와 기능 3(LangGraph)으로 LLM·Agent·RAG 영역은 커버되었다. 본 기능은 마지막으로 **ML/컴퓨터 비전** 영역을 채워 이력서 7개 기술(LLM API, Agent, LangChain, LangGraph, 멀티에이전트, RAG, ML/CV)을 모두 다룬다.

@@ -54,8 +54,9 @@
 
 <section class="pose-hero">
   <h1>🏃 AI 자세 분석</h1>
-  <p>풋살 킥/드리블 영상을 업로드하면 AI가 자세를 분석해 드려요.<br>
-    MediaPipe로 33개 관절을 추출하고, 학습된 모델이 자세를 4가지로 분류해 자연어 피드백까지 제공합니다.</p>
+  <p>풋살 킥 영상을 업로드하면 AI가 자세를 분석해 드려요.<br>
+    MediaPipe로 33개 관절을 추출하고, 학습된 모델이 인사이드킥·인스텝킥·인프런트킥 중 어느 자세인지 분류 + 자연어 피드백을 제공합니다.
+    <small style="color:var(--text-muted)">(드리블·패스 분류는 Phase 2 예정)</small></p>
 </section>
 
 <main class="pose-wrap">

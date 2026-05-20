@@ -37,7 +37,7 @@ class PoseControllerTest {
   @Test
   void analyze_returnsAnalysis() throws Exception {
     PoseAnalysisDTO dto = new PoseAnalysisDTO();
-    dto.setPoseClass("GOOD_KICK");
+    dto.setPoseClass("INSTEP_KICK");
     dto.setConfidence(0.9);
     when(poseService.analyze(any())).thenReturn(dto);
 
@@ -47,7 +47,7 @@ class PoseControllerTest {
     mockMvc
         .perform(multipart("/ai/pose/analyze").file(mp).session(session))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.pose_class").value("GOOD_KICK"));
+        .andExpect(jsonPath("$.pose_class").value("INSTEP_KICK"));
   }
 
   @Test

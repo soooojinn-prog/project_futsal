@@ -5,8 +5,9 @@
 
 테스트 영상 디렉토리 구조:
     eval/pose_test_videos/
-        GOOD_KICK_01.mp4
-        BAD_KICK_KNEE_LOCKED_02.mp4
+        INSIDE_KICK_01.mp4
+        INSTEP_KICK_02.mp4
+        INFRONT_KICK_03.mp4
         ...
 파일명 prefix가 라벨.
 """
@@ -28,7 +29,7 @@ from pose.feedback import FeedbackGenerator
 from rag.claude_client import ClaudeClient
 
 
-CLASSES = ["GOOD_KICK", "BAD_KICK_KNEE_LOCKED", "GOOD_DRIBBLE", "BAD_DRIBBLE_OVERREACH"]
+CLASSES = ["INSIDE_KICK", "INSTEP_KICK", "INFRONT_KICK"]
 
 
 def _label_from_filename(p: Path) -> str:

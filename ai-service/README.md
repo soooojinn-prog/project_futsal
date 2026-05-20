@@ -151,7 +151,7 @@ python -m eval.run_pose_eval
 산출물: `eval/pose_report_<timestamp>.md` (덮어쓰기 방지).
 
 테스트 영상 디렉토리(`eval/pose_test_videos/`)에 라벨 prefix 파일명으로 영상 배치:
-- `GOOD_KICK_01.mp4`, `BAD_KICK_KNEE_LOCKED_02.mp4`, ...
+- `INSIDE_KICK_01.mp4`, `INSTEP_KICK_02.mp4`, `INFRONT_KICK_03.mp4`, ...
 
 ## RAG 평가
 

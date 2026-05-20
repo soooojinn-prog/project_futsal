@@ -27,7 +27,7 @@ def test_timing_ms_total_field():
 
 
 def test_pose_class_literal():
-    for c in ["GOOD_KICK", "BAD_KICK_KNEE_LOCKED", "GOOD_DRIBBLE", "BAD_DRIBBLE_OVERREACH"]:
+    for c in ["INSIDE_KICK", "INSTEP_KICK", "INFRONT_KICK"]:
         r = PoseAnalysisResponse(
             pose_class=c,
             class_name=c,

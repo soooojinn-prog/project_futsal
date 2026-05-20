@@ -31,10 +31,10 @@ class PoseServiceTest {
   @Test
   void analyze_parsesResponse() throws Exception {
     String json =
-        "{\"pose_class\":\"BAD_KICK_KNEE_LOCKED\",\"class_name\":\"킥 — 무릎 잠김\","
+        "{\"pose_class\":\"INSTEP_KICK\",\"class_name\":\"인스텝킥\","
             + "\"confidence\":0.87,"
-            + "\"class_probabilities\":{\"GOOD_KICK\":0.05,\"BAD_KICK_KNEE_LOCKED\":0.87,"
-            + "\"GOOD_DRIBBLE\":0.04,\"BAD_DRIBBLE_OVERREACH\":0.04},"
+            + "\"class_probabilities\":{\"INSIDE_KICK\":0.05,\"INSTEP_KICK\":0.87,"
+            + "\"INFRONT_KICK\":0.08},"
             + "\"key_angles\":{"
             + "\"left_knee\":{\"mean\":168,\"min\":158,\"max\":175},"
             + "\"right_knee\":{\"mean\":145,\"min\":130,\"max\":160},"
@@ -52,7 +52,7 @@ class PoseServiceTest {
         new MockMultipartFile("file", "test.mp4", "video/mp4", new byte[] {0, 1, 2});
     PoseAnalysisDTO dto = service.analyze(mp);
 
-    assertThat(dto.getPoseClass()).isEqualTo("BAD_KICK_KNEE_LOCKED");
+    assertThat(dto.getPoseClass()).isEqualTo("INSTEP_KICK");
     assertThat(dto.getConfidence()).isEqualTo(0.87);
     assertThat(dto.getKeyAngles().getLeftKnee().getMean()).isEqualTo(168);
     assertThat(dto.getTimingMs().getTotal()).isEqualTo(3500);

@@ -2,15 +2,12 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-PoseClass = Literal[
-    "GOOD_KICK", "BAD_KICK_KNEE_LOCKED", "GOOD_DRIBBLE", "BAD_DRIBBLE_OVERREACH"
-]
+PoseClass = Literal["INSIDE_KICK", "INSTEP_KICK", "INFRONT_KICK"]
 
 CLASS_NAMES_KO: dict[str, str] = {
-    "GOOD_KICK": "좋은 킥",
-    "BAD_KICK_KNEE_LOCKED": "킥 — 무릎 잠김",
-    "GOOD_DRIBBLE": "좋은 드리블",
-    "BAD_DRIBBLE_OVERREACH": "드리블 — 과도 리치",
+    "INSIDE_KICK": "인사이드킥",
+    "INSTEP_KICK": "인스텝킥",
+    "INFRONT_KICK": "인프런트킥",
 }
 
 

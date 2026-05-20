@@ -22,17 +22,16 @@ def test_client(tmp_path, monkeypatch):
     fake_features.build_single.return_value = [0.0] * 10
     fake_classifier = MagicMock()
     fake_classifier.predict.return_value = (
-        "BAD_KICK_KNEE_LOCKED",
+        "INSTEP_KICK",
         0.87,
         {
-            "GOOD_KICK": 0.05,
-            "BAD_KICK_KNEE_LOCKED": 0.87,
-            "GOOD_DRIBBLE": 0.04,
-            "BAD_DRIBBLE_OVERREACH": 0.04,
+            "INSIDE_KICK": 0.05,
+            "INSTEP_KICK": 0.87,
+            "INFRONT_KICK": 0.08,
         },
     )
     fake_feedback = MagicMock()
-    fake_feedback.generate.return_value = "무릎이 너무 펴졌어요."
+    fake_feedback.generate.return_value = "인스텝킥 자세가 안정적이에요."
 
     _main.pose_extractor = fake_extractor
     _main.pose_features = fake_features
@@ -51,7 +50,7 @@ def test_pose_analyze_returns_response(test_client):
     )
     assert resp.status_code == 200
     body = resp.json()
-    assert body["pose_class"] == "BAD_KICK_KNEE_LOCKED"
+    assert body["pose_class"] == "INSTEP_KICK"
     assert body["confidence"] == 0.87
     assert "key_angles" in body
     assert "timing_ms" in body

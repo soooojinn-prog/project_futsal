@@ -1,9 +1,11 @@
-"""풋살 자세 4분류 모델 학습.
+"""풋살 킥 3분류 모델 학습.
 
 사용법:
     python -m pose.train --features data/pose_features.csv --out models/best.joblib
 
-CSV 형식: feature 컬럼 + 마지막 컬럼 `label` (4개 클래스 중 하나).
+CSV 형식: feature 컬럼 + 마지막 컬럼 `label` (INSIDE_KICK/INSTEP_KICK/INFRONT_KICK 중 하나).
+
+* 드리블·패스 분류는 향후 Phase 2에서 추가 데이터 확보 후 확장 예정 (현재 비활성).
 """
 from __future__ import annotations
 
@@ -22,7 +24,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 
-CLASSES = ["GOOD_KICK", "BAD_KICK_KNEE_LOCKED", "GOOD_DRIBBLE", "BAD_DRIBBLE_OVERREACH"]
+CLASSES = ["INSIDE_KICK", "INSTEP_KICK", "INFRONT_KICK"]
 
 
 class MLP(nn.Module):
