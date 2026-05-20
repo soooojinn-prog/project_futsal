@@ -179,6 +179,32 @@ pytest -v
 
 총 36개 테스트 (schemas 6 + claude_client 4 + retriever 3 + chain 5 + router_classifier 4 + main_endpoints 5 + recommender 5 + data_generator 4).
 
+## LangSmith 트레이싱 (선택)
+
+RAG 답변, LangGraph 에이전트, Pose 피드백 등 모든 Claude 호출을 LangSmith 대시보드로 추적해 latency·token·prompt를 시각화할 수 있다.
+
+### 활성화 방법
+
+1. https://smith.langchain.com 가입 후 API key 발급 (`lsv2_…`)
+2. `.env`에 다음 4개 추가:
+
+```env
+LANGSMITH_TRACING=true
+LANGSMITH_API_KEY=lsv2_여기에_실제_키
+LANGSMITH_PROJECT=letsfutsal
+LANGSMITH_ENDPOINT=https://api.smith.langchain.com
+```
+
+3. 서버 재시작 (`uvicorn main:app ...`) — 시작 시 `[LangSmith] tracing enabled (project=letsfutsal)` 로그 확인
+4. 챗봇/에이전트/포즈 1회 사용 → LangSmith Projects에서 trace 트리 확인
+
+### 자동 trace 범위
+
+- **Claude API 호출 전체**: `langsmith.wrappers.wrap_anthropic`이 `ClaudeClient` 내부 SDK를 감싸 messages.create 호출이 자동 기록
+- **RAG `rag_answer` chain**: `@traceable(run_type="chain")` — retrieval + system prompt + Claude 호출이 하나의 trace로 묶임
+- **LangGraph 에이전트**: 환경 변수만으로 모든 노드(parse_intent → stadium → team → ...)가 자동 trace
+- **미설정 시**: 환경 변수 없으면 트레이싱 완전 비활성, 코드는 정상 동작
+
 ## Spring 통합
 
 Spring `RagClient`가 환경 변수 `AI_SERVICE_URL`(기본 `http://localhost:8000`)로 본 서비스를 호출. `AiService.chat()`이 `IntentRouter`로 분기하여:

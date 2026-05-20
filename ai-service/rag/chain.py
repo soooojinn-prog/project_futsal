@@ -4,6 +4,18 @@ from .claude_client import ClaudeClient
 from .retriever import Retriever
 from .schemas import Citation, RagResponse, UserContext
 
+try:
+    from langsmith import traceable
+except Exception:  # langsmith 미설치 환경 fallback — 데코레이터를 no-op로
+    def traceable(*args, **kwargs):  # type: ignore[no-redef]
+        if args and callable(args[0]):
+            return args[0]
+
+        def _decorator(fn):
+            return fn
+
+        return _decorator
+
 
 def _format_context_block(citations: list[Citation]) -> str:
     if not citations:
@@ -50,6 +62,7 @@ class RagChain:
         self._claude = claude_client
         self._top_k = top_k
 
+    @traceable(name="rag_answer", run_type="chain")
     def answer(self, query: str, user_context: UserContext | None) -> RagResponse:
         citations = self._retriever.search(query, k=self._top_k)
         system_prompt = build_system_prompt(citations, user_context)

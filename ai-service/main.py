@@ -57,10 +57,20 @@ CHROMA_DIR = Path(os.environ.get("RAG_CHROMA_DIR", "data/chroma_db"))
 POSE_MODEL_PATH = Path(os.environ.get("POSE_MODEL_PATH", "models/best.joblib"))
 
 
+def _log_langsmith_status() -> None:
+    enabled = os.environ.get("LANGSMITH_TRACING", "").lower() in {"true", "1", "yes"}
+    if enabled:
+        project = os.environ.get("LANGSMITH_PROJECT", "default")
+        print(f"[LangSmith] tracing enabled (project={project})")
+    else:
+        print("[LangSmith] tracing disabled (set LANGSMITH_TRACING=true to enable)")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global recommender, rag_chain, router_classifier
 
+    _log_langsmith_status()
     matches = generate_matches(300)
     recommender = Recommender(matches)
 

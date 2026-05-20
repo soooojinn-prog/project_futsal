@@ -16,3 +16,4 @@ langgraph==0.2.55
 mediapipe==0.10.20
 opencv-python==4.10.0.84
 python-multipart==0.0.20
+langsmith==0.1.147

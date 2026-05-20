@@ -3,6 +3,21 @@ import os
 import anthropic
 
 
+def _maybe_wrap_with_langsmith(client: anthropic.Anthropic) -> anthropic.Anthropic:
+    """LANGSMITH_TRACING=true이고 langsmith가 설치돼 있으면 trace 래핑.
+
+    LangSmith 미설정/미설치여도 정상 동작 (no-op).
+    """
+    if os.environ.get("LANGSMITH_TRACING", "").lower() not in {"true", "1", "yes"}:
+        return client
+    try:
+        from langsmith.wrappers import wrap_anthropic
+
+        return wrap_anthropic(client)
+    except Exception:
+        return client
+
+
 class ClaudeClient:
     """Anthropic SDK 얇은 래퍼 — 단위 테스트 시 Mock 가능."""
 
@@ -13,7 +28,7 @@ class ClaudeClient:
         key = api_key or os.environ.get("CLAUDE_API_KEY")
         if not key:
             raise RuntimeError("CLAUDE_API_KEY가 설정되지 않았습니다.")
-        self._client = anthropic.Anthropic(api_key=key)
+        self._client = _maybe_wrap_with_langsmith(anthropic.Anthropic(api_key=key))
         self._model = model
 
     def chat(self, system: str, user: str, max_tokens: int = DEFAULT_MAX_TOKENS) -> str:
