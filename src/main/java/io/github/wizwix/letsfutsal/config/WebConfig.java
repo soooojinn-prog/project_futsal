@@ -10,6 +10,8 @@ import org.springframework.web.servlet.config.annotation.DefaultServletHandlerCo
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
@@ -36,5 +38,14 @@ public class WebConfig implements WebMvcConfigurer {
     resolver.setViewClass(JstlView.class);
 
     return resolver;
+  }
+
+  /**
+   * Pose 영상 업로드용 multipart 처리. 빈 이름은 반드시 "multipartResolver"여야 Spring이
+   * DispatcherServlet 단계에서 자동으로 사용한다.
+   */
+  @Bean(name = "multipartResolver")
+  public MultipartResolver multipartResolver() {
+    return new StandardServletMultipartResolver();
   }
 }
