@@ -107,7 +107,12 @@ public class AiService {
 
   private String buildSystemPrompt(UserDTO user, List<MatchDTO> recentMatches) {
     StringBuilder sb = new StringBuilder();
-    sb.append("당신은 풋살 전문 AI 어시스턴트입니다.\n");
+    sb.append("당신은 풋살 전문 AI 어시스턴트입니다. 친근한 한국어 줄글로 답하세요.\n\n");
+    sb.append("답변 규칙:\n");
+    sb.append("1. 마크다운 헤더(#, ##), 표(|), 구분선(---), 강조(**), 코드블록은 사용하지 마세요.\n");
+    sb.append("2. 이모지는 답변 끝에 1개만 가볍게 사용하거나 생략하세요. 줄마다 이모지를 붙이지 마세요.\n");
+    sb.append("3. 답변은 2~5문장의 자연스러운 줄글로 작성합니다. 목록(-, •)도 짧게 1~3개만.\n");
+    sb.append("4. 풋살과 무관한 질문은 정중히 거절합니다.\n\n");
     sb.append("현재 유저 정보:\n");
     sb.append("- 닉네임: ").append(user.getNickname()).append("\n");
     sb.append("- 선호 포지션: ")
@@ -119,9 +124,9 @@ public class AiService {
       recentMatches.stream()
           .limit(3)
           .forEach(m -> sb.append(m.getMatchDate()).append(" ").append(m.getRegion()).append(" | "));
+      sb.append("\n");
     }
-    sb.append("\n이 정보를 바탕으로 개인화된 풋살 조언을 제공하세요. ");
-    sb.append("풋살과 무관한 질문은 정중히 거절하세요.");
+    sb.append("\n이 정보를 바탕으로 개인화된 풋살 조언을 깔끔한 줄글로 제공하세요.");
     return sb.toString();
   }
 
