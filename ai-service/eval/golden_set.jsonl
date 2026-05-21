@@ -5,12 +5,12 @@
 {"id":"q05","query":"3-1 포메이션의 특징은?","expected_source":"formations 3 1","reference":"세 명의 수비/미드와 한 명의 피보로 구성된 균형형 포메이션이다."}
 {"id":"q06","query":"2-2 포메이션 어떨 때 써?","expected_source":"formations 2 2","reference":"두 명씩 전후방으로 나뉘어 좌우 균형을 가져가는 기본 포메이션."}
 {"id":"q07","query":"코너킥은 몇 초 안에 차야 해?","expected_source":"rules 17 corner","reference":"신호 후 4초 이내에 차야 한다."}
-{"id":"q08","query":"킥인 규칙 알려줘","expected_source":"rules 15 kickin","reference":"풋살은 축구의 스로인 대신 킥인으로 재개하며, 신호 후 4초 안에 차야 한다. 직접 골은 인정되지 않는다."}
-{"id":"q09","query":"풋살에서 압박 전술이란?","expected_source":"tactics pressing","reference":"상대 빌드업 단계에서 공간을 빠르게 좁혀 패스 미스를 유도하는 전술."}
+{"id":"q08","query":"킥인 규칙 알려줘","expected_source":"rules 15 kickin","reference":"풋살은 축구의 스로인 대신 킥인으로 재개하며, 키커는 신호 후 4초 안에 차야 한다. 킥인에서 직접 골은 인정되지 않는다."}
+{"id":"q09","query":"풋살에서 압박 전술이란?","expected_source":"tactics pressing","reference":"풋살의 전방 압박 전술은 패스 코스 차단과 협력 수비로 상대를 압박해 공을 탈취하고, 4초 룰 같은 시간 제한도 적극 활용하는 전략이다."}
 {"id":"q10","query":"카운터 공격은 어떻게 만들어?","expected_source":"tactics pressing","reference":"수비 후 빠른 전환으로 상대 수비가 정비되기 전에 공격을 마무리한다."}
-{"id":"q11","query":"드리블 기본 훈련법은?","expected_source":"training basics","reference":"공을 발 가까이 두고 좌우 발 인사이드/아웃사이드로 부드럽게 운반하는 연습이 기본이다."}
-{"id":"q12","query":"패스 연습 어떻게 해?","expected_source":"training basics","reference":"두 명이 마주보고 인사이드 패스를 반복하며, 거리와 속도를 점진적으로 늘린다."}
-{"id":"q13","query":"슈팅 기본 자세는?","expected_source":"training basics","reference":"디딤발을 공 옆에 두고 발등으로 임팩트, 상체는 약간 앞으로 기울인다."}
+{"id":"q11","query":"드리블 기본 훈련법은?","expected_source":"training basics","reference":"풋살 기초 드리블 훈련은 발바닥 롤링 드리블, 인사이드·아웃사이드 푸시, 지그재그 콘 드리블 등이 대표적이며 좁은 공간에서 볼을 몸 가까이 유지하는 감각을 익히는 것이 핵심이다."}
+{"id":"q12","query":"패스 연습 어떻게 해?","expected_source":"training basics","reference":"풋살 패스 기초 훈련은 디딤발 위치와 발목 고정이 중요한 인사이드 패스, 벽 패스 훈련, 원터치 패스 등으로 구성된다."}
+{"id":"q13","query":"슈팅 기본 자세는?","expected_source":"training basics","reference":"슈팅의 기본은 발등 중앙으로 공의 중심을 정확히 맞추고 발목을 단단히 고정하는 것이며, 무빙 슈팅과 코너 타겟 훈련으로 연결한다."}
 {"id":"q14","query":"풋살 골키퍼는 볼을 몇 초 잡고 있을 수 있어?","expected_source":"rules 16 goalclearance","reference":"골키퍼는 자기 진영에서 볼을 4초 이상 소유할 수 없다."}
 {"id":"q15","query":"풋살 페널티킥 거리는 얼마야?","expected_source":"rules 14 penalty","reference":"페널티 마크는 골라인 중앙에서 6m 거리에 있다."}
 {"id":"q16","query":"피보 포지션이 뭐야?","expected_source":"formations 4 0","reference":"풋살의 최전방 공격수로, 등을 진 상태에서 볼을 받아 키핑·연결하는 역할."}

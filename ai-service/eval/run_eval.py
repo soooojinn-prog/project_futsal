@@ -70,8 +70,8 @@ def judge_faithfulness(claude: ClaudeClient, answer: str, reference: str) -> int
 def evaluate(golden: list[dict[str, Any]], persist_dir: Path) -> dict[str, Any]:
     retriever = open_persistent_retriever(persist_dir)
     claude = ClaudeClient()
-    # top_k 4 → 6: citation 다양성 확보로 모델이 사실 단서를 더 풍부하게 활용.
-    chain = RagChain(retriever=retriever, claude_client=claude, top_k=6)
+    # top_k 6 → 8: chunk size 키운 만큼 더 넓은 컨텍스트로 사실 단서 보강.
+    chain = RagChain(retriever=retriever, claude_client=claude, top_k=8)
     classifier = RouterClassifier(claude_client=claude)
 
     knowledge_items = [g for g in golden if g["expected_source"] != "__ADVICE__"]

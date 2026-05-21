@@ -15,8 +15,8 @@ from pypdf import PdfReader
 
 from .retriever import DEFAULT_COLLECTION, SentenceTransformerEmbedder
 
-CHUNK_SIZE = 500
-CHUNK_OVERLAP = 80
+CHUNK_SIZE = 700
+CHUNK_OVERLAP = 120
 SEPARATORS = ["\n\n", "\n", ". ", " "]
 
 
