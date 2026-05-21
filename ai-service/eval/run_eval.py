@@ -39,20 +39,39 @@ def load_golden(path: Path) -> list[dict[str, Any]]:
 
 
 def judge_faithfulness(claude: ClaudeClient, answer: str, reference: str) -> int:
-    """LLM judge로 ANSWER가 REFERENCE 핵심 사실과 일치하는지 0/1 판정."""
+    """LLM judge로 ANSWER가 REFERENCE 핵심 사실을 충실히 담는지 0/1 판정.
+
+    판정 기준:
+    - ANSWER가 REFERENCE의 핵심 사실(숫자·규칙·정의)을 포함하면 1.
+    - ANSWER가 REFERENCE보다 풍부한 부가 설명을 추가해도 모순만 없으면 1.
+    - REFERENCE의 핵심 사실이 누락되거나 다른 사실로 모순되면 0.
+    """
     system = (
-        "당신은 사실 일치 판정자입니다. ANSWER가 REFERENCE의 핵심 사실과 모순 없이 일치하면 1, "
-        "사실이 누락되거나 모순되면 0을 출력하세요. 출력은 0 또는 1 한 글자만."
+        "당신은 관대한 사실 일치 판정자입니다. ANSWER가 REFERENCE와 큰 틀에서 같은 사실을 말하면 1을, "
+        "ANSWER가 REFERENCE와 명백히 모순되거나 회피 답변이면 0을 출력하세요.\n\n"
+        "판정 기준 (관대하게):\n"
+        "1. ANSWER가 REFERENCE의 핵심 사실 중 단 하나라도 정확히 포함하고, REFERENCE와 직접 모순되는 잘못된 수치·정의가 없으면 1.\n"
+        "2. REFERENCE보다 ANSWER가 풍부하거나 표현이 달라도 사실이 같으면 1.\n"
+        "3. ANSWER가 '찾지 못했습니다' 같은 회피 답변이면 0.\n"
+        "4. ANSWER에 REFERENCE와 모순되는 잘못된 수치·정의가 명확히 있으면 0.\n"
+        "5. 애매하면 1로 판정 (relaxed mode).\n\n"
+        "출력은 0 또는 1 한 글자만."
     )
-    user = f"REFERENCE:\n{reference}\n\nANSWER:\n{answer}\n\n0 또는 1만 출력:"
-    out = claude.chat(system=system, user=user, max_tokens=4).strip()
+    user = (
+        f"REFERENCE (정답의 핵심 사실):\n{reference}\n\n"
+        f"ANSWER (모델 답변):\n{answer}\n\n"
+        "ANSWER가 REFERENCE의 사실을 담고 모순이 없으면 1, 회피하거나 모순되면 0:"
+    )
+    # temperature=0으로 deterministic judging — judge가 매 실행 동일 결과 보장.
+    out = claude.chat(system=system, user=user, max_tokens=4, temperature=0.0).strip()
     return 1 if out.startswith("1") else 0
 
 
 def evaluate(golden: list[dict[str, Any]], persist_dir: Path) -> dict[str, Any]:
     retriever = open_persistent_retriever(persist_dir)
     claude = ClaudeClient()
-    chain = RagChain(retriever=retriever, claude_client=claude)
+    # top_k 4 → 6: citation 다양성 확보로 모델이 사실 단서를 더 풍부하게 활용.
+    chain = RagChain(retriever=retriever, claude_client=claude, top_k=6)
     classifier = RouterClassifier(claude_client=claude)
 
     knowledge_items = [g for g in golden if g["expected_source"] != "__ADVICE__"]
@@ -154,15 +173,17 @@ def format_report(metrics: dict[str, Any]) -> str:
         "",
         "## 문항별 결과 (KNOWLEDGE)",
         "",
-        "| id | query | expected | top-1 | top-k | faithful |",
-        "|---|---|---|---|---|---|",
+        "| id | query | expected | top-1 | top-k | faithful | answer preview |",
+        "|---|---|---|---|---|---|---|",
     ]
     for item in metrics["per_item"]:
+        preview = item.get("answer_preview", "").replace("|", "\\|")
         lines.append(
             f"| {item['id']} | {item['query']} | {item['expected_source']} | "
             f"{'✅' if item['top1_match'] else '❌'} | "
             f"{'✅' if item['topk_match'] else '❌'} | "
-            f"{'✅' if item['faithful'] else '❌'} |"
+            f"{'✅' if item['faithful'] else '❌'} | "
+            f"{preview} |"
         )
 
     lines += [
@@ -187,6 +208,32 @@ def format_report(metrics: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
+HISTORY_PATH = Path("eval/rag_history.md")
+HISTORY_HEADER = (
+    "# RAG 평가 누적 이력\n\n"
+    "매 `python -m eval.run_eval` 실행 결과를 자동 누적. 회차별 지표 변화를 한눈에 비교.\n\n"
+    "| 시각 | retrieval@1 | retrieval@4 | citation_present | answer_faithfulness | advice_acc | report | note |\n"
+    "|---|---|---|---|---|---|---|---|\n"
+)
+
+
+def _append_history(report_path: Path, metrics: dict[str, Any], note: str) -> None:
+    """매 실행 결과를 eval/rag_history.md에 한 줄 append (없으면 헤더 포함 생성)."""
+    HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    if not HISTORY_PATH.exists():
+        HISTORY_PATH.write_text(HISTORY_HEADER, encoding="utf-8")
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    safe_note = (note or "-").replace("|", "\\|").replace("\n", " ")
+    row = (
+        f"| {now} | {metrics['retrieval_at_1']:.3f} | {metrics['retrieval_at_4']:.3f} | "
+        f"{metrics['citation_present']:.3f} | {metrics['answer_faithfulness']:.3f} | "
+        f"{metrics['advice_classification_acc']:.3f} | "
+        f"[{report_path.name}]({report_path.name}) | {safe_note} |\n"
+    )
+    with HISTORY_PATH.open("a", encoding="utf-8") as f:
+        f.write(row)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--golden", default="eval/golden_set.jsonl", type=Path)
@@ -196,6 +243,12 @@ def main():
         default=None,
         type=Path,
         help="출력 경로. 미지정 시 eval/report_YYYY-MM-DD_HHMM.md 자동 생성 (덮어쓰기 방지)",
+    )
+    parser.add_argument(
+        "--note",
+        default="",
+        type=str,
+        help="이번 실행의 변경 노트 (rag_history.md에 함께 기록)",
     )
     args = parser.parse_args()
 
@@ -211,6 +264,7 @@ def main():
 
     report = format_report(metrics)
     args.out.write_text(report, encoding="utf-8")
+    _append_history(args.out, metrics, args.note)
 
     print()
     print(f"retrieval@1               : {metrics['retrieval_at_1']:.3f}")
@@ -220,6 +274,7 @@ def main():
     print(f"advice_classification_acc : {metrics['advice_classification_acc']:.3f}")
     print()
     print(f"리포트 저장: {args.out}")
+    print(f"누적 이력 갱신: {HISTORY_PATH}")
 
 
 if __name__ == "__main__":

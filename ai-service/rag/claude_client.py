@@ -31,13 +31,22 @@ class ClaudeClient:
         self._client = _maybe_wrap_with_langsmith(anthropic.Anthropic(api_key=key))
         self._model = model
 
-    def chat(self, system: str, user: str, max_tokens: int = DEFAULT_MAX_TOKENS) -> str:
-        resp = self._client.messages.create(
-            model=self._model,
-            max_tokens=max_tokens,
-            system=system,
-            messages=[{"role": "user", "content": user}],
-        )
+    def chat(
+        self,
+        system: str,
+        user: str,
+        max_tokens: int = DEFAULT_MAX_TOKENS,
+        temperature: float | None = None,
+    ) -> str:
+        kwargs: dict = {
+            "model": self._model,
+            "max_tokens": max_tokens,
+            "system": system,
+            "messages": [{"role": "user", "content": user}],
+        }
+        if temperature is not None:
+            kwargs["temperature"] = temperature
+        resp = self._client.messages.create(**kwargs)
         if not resp.content:
             return ""
         return resp.content[0].text
