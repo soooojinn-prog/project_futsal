@@ -54,7 +54,8 @@ def judge_tool_correctness(
         f"EXPECTED_TOOLS: {expected_tools}\n\n"
         f"ACTUAL_SIGNALS: {actual_signals}\n\n0 또는 1만:"
     )
-    out = claude.chat(system=system, user=user, max_tokens=4).strip()
+    # temperature=0으로 deterministic judging.
+    out = claude.chat(system=system, user=user, max_tokens=4, temperature=0.0).strip()
     return 1 if out.startswith("1") else 0
 
 
@@ -152,6 +153,30 @@ def format_report(metrics: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
+HISTORY_PATH = Path("eval/agent_history.md")
+HISTORY_HEADER = (
+    "# LangGraph 에이전트 평가 누적 이력\n\n"
+    "매 `python -m eval.run_agent_eval` 실행 결과를 자동 누적. 회차별 지표 변화를 한눈에 비교.\n\n"
+    "| 시각 | intent_acc | tool_correctness | proposal_validity | e2e_success | report | note |\n"
+    "|---|---|---|---|---|---|---|\n"
+)
+
+
+def _append_history(report_path: Path, metrics: dict, note: str) -> None:
+    HISTORY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    if not HISTORY_PATH.exists():
+        HISTORY_PATH.write_text(HISTORY_HEADER, encoding="utf-8")
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    safe_note = (note or "-").replace("|", "\\|").replace("\n", " ")
+    row = (
+        f"| {now} | {metrics['intent_acc']:.3f} | {metrics['tool_correctness']:.3f} | "
+        f"{metrics['proposal_validity']:.3f} | {metrics['e2e_success']:.3f} | "
+        f"[{report_path.name}]({report_path.name}) | {safe_note} |\n"
+    )
+    with HISTORY_PATH.open("a", encoding="utf-8") as f:
+        f.write(row)
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--scenarios", default="eval/agent_scenarios.jsonl", type=Path)
@@ -160,6 +185,12 @@ def main():
         default=None,
         type=Path,
         help="출력 경로. 미지정 시 eval/agent_report_<timestamp>.md 자동 생성 (덮어쓰기 방지)",
+    )
+    p.add_argument(
+        "--note",
+        default="",
+        type=str,
+        help="이번 실행의 변경 노트 (agent_history.md에 함께 기록)",
     )
     args = p.parse_args()
 
@@ -174,6 +205,7 @@ def main():
     metrics = evaluate(scenarios)
     report = format_report(metrics)
     args.out.write_text(report, encoding="utf-8")
+    _append_history(args.out, metrics, args.note)
 
     print()
     print(f"intent_acc        : {metrics['intent_acc']:.3f}")
@@ -182,6 +214,7 @@ def main():
     print(f"e2e_success       : {metrics['e2e_success']:.3f}")
     print()
     print(f"리포트 저장: {args.out}")
+    print(f"누적 이력 갱신: {HISTORY_PATH}")
 
 
 if __name__ == "__main__":
