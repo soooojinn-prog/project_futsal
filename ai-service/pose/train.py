@@ -24,7 +24,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 
-CLASSES = ["INSIDE_KICK", "INSTEP_KICK", "INFRONT_KICK"]
+# Phase 1 — AI Hub 데이터 일부 다운로드 실패로 인프런트·남성 데이터 부재.
+# 일단 여성 데이터 기준 2-class 학습. INFRONT_KICK는 Phase 2에 추가 학습 예정.
+CLASSES = ["INSIDE_KICK", "INSTEP_KICK"]
 
 
 class MLP(nn.Module):
@@ -110,7 +112,13 @@ def main():
         "--card",
         default="models/model_card.md",
         type=Path,
-        help="모델 선정 근거 마크다운",
+        help="모델 선정 근거 마크다운 (매 실행 시 timestamp 사본도 함께 저장)",
+    )
+    parser.add_argument(
+        "--note",
+        default="",
+        type=str,
+        help="이번 학습의 변경 노트 (models/training_history.md에 함께 기록)",
     )
     args = parser.parse_args()
 
@@ -198,7 +206,34 @@ def main():
         f"정확도가 더 높은 모델 선정. 동률이면 추론 속도가 빠른 모델 선정.\n"
     )
     args.card.write_text(card, encoding="utf-8")
+
+    # 매 실행 timestamp 사본 + training_history.md 한 줄 append (덮어쓰기 방지)
+    stamp = time.strftime("%Y-%m-%d_%H%M%S")
+    card_archived = args.card.with_name(f"model_card_{stamp}.md")
+    card_archived.write_text(card, encoding="utf-8")
+
+    history_path = args.out.parent / "training_history.md"
+    if not history_path.exists():
+        history_path.write_text(
+            "# Pose Classifier 학습 누적 이력\n\n"
+            "매 `python -m pose.train` 실행 결과 자동 누적. RF·MLP 비교 + 선정 모델 한눈에 비교.\n\n"
+            "| 시각 | n | feat | RF acc | RF f1 | RF ms | MLP acc | MLP f1 | MLP ms | winner | card | note |\n"
+            "|---|---|---|---|---|---|---|---|---|---|---|---|\n",
+            encoding="utf-8",
+        )
+    safe_note = (args.note or "-").replace("|", "\\|").replace("\n", " ")
+    now = time.strftime("%Y-%m-%d %H:%M:%S")
+    row = (
+        f"| {now} | {len(df)} | {X.shape[1]} | "
+        f"{rf_metrics['accuracy']:.3f} | {rf_metrics['f1_macro']:.3f} | {rf_ms:.2f} | "
+        f"{mlp_metrics['accuracy']:.3f} | {mlp_metrics['f1_macro']:.3f} | {mlp_ms:.2f} | "
+        f"**{winner_name}** | [{card_archived.name}]({card_archived.name}) | {safe_note} |\n"
+    )
+    with history_path.open("a", encoding="utf-8") as f:
+        f.write(row)
+
     print(f"\n저장: {args.out} ({winner_name}) + {args.card}")
+    print(f"누적 이력 갱신: {history_path}")
 
 
 if __name__ == "__main__":
