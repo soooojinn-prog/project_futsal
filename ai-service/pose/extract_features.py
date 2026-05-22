@@ -9,16 +9,17 @@
         --out data/pose_features.csv \\
         --max-per-class 4000   # 클래스 불균형 완화 (None이면 전체)
 
-출력 CSV 컬럼 (14 feature + label):
+출력 CSV 컬럼 (18 feature + label):
     좌/우 절대각 6개: left_knee_angle, right_knee_angle, left_hip_angle,
                        right_hip_angle, left_ankle_angle, right_ankle_angle
     체격 2개: torso_lean, hip_width
     좌/우 derived 6개: knee_diff, knee_max, knee_min,
                        ankle_diff, ankle_max, hip_diff
+    kick/plant 4개: kick_knee, plant_knee, kick_ankle, plant_ankle
     label
 
-* kick/plant 대신 좌/우 대칭 derived feature(차이·극값)로 차는 발 정보를 모델이
-  암묵적으로 학습. 추론 시에도 동일 14차원 (kicking foot 정보 불필요).
+* 학습: metaData.kicking_foot으로 정확한 kick/plant 매핑.
+* 추론(features.py): kicking_foot 정보 없으므로 무릎 각도 max=차는 발, min=디딤발 heuristic.
 """
 from __future__ import annotations
 
@@ -65,6 +66,8 @@ def extract_features_from_json(label: dict) -> dict | None:
     if label_str is None:
         return None
 
+    kicking_foot = meta.get("kicking foot", "")  # "왼발" / "오른발"
+
     pose_loc: dict | None = None
     for ann in label.get("annotation", []):
         if "pose" in ann:
@@ -98,6 +101,14 @@ def extract_features_from_json(label: dict) -> dict | None:
 
     hip_width = _dist(hp_l, hp_r)
 
+    # kick/plant — metaData.kicking_foot 기반 정확한 매핑 (학습 전용)
+    if kicking_foot == "왼발":
+        kick_knee, plant_knee = left_knee, right_knee
+        kick_ankle, plant_ankle = left_ankle, right_ankle
+    else:
+        kick_knee, plant_knee = right_knee, left_knee
+        kick_ankle, plant_ankle = right_ankle, left_ankle
+
     return {
         "left_knee_angle": left_knee,
         "right_knee_angle": right_knee,
@@ -114,6 +125,11 @@ def extract_features_from_json(label: dict) -> dict | None:
         "ankle_diff": abs(left_ankle - right_ankle),
         "ankle_max": max(left_ankle, right_ankle),
         "hip_diff": abs(left_hip - right_hip),
+        # kick/plant — 학습에서 metaData.kicking_foot으로 정확히 매핑
+        "kick_knee": kick_knee,
+        "plant_knee": plant_knee,
+        "kick_ankle": kick_ankle,
+        "plant_ankle": plant_ankle,
         "label": label_str,
     }
 

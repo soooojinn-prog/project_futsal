@@ -1,15 +1,18 @@
-"""MediaPipe 33점 → AI Hub 학습 feature와 호환되는 14차원 벡터 생성.
+"""MediaPipe 33점 → AI Hub 학습 feature와 호환되는 18차원 벡터 생성.
 
 학습 데이터(AI Hub `extract_features.py`)와 동일한 컬럼 순서·정의를 유지해야
 `classifier.predict`에 그대로 넣을 수 있다. 영상은 여러 frame을 가지므로 각
-frame에서 14 feature를 계산한 뒤 평균값으로 단일 vector 반환.
+frame에서 18 feature를 계산한 뒤 평균값으로 단일 vector 반환.
 
-14 feature 순서:
+18 feature 순서:
     좌/우 절대각 6개: left_knee_angle, right_knee_angle, left_hip_angle,
                        right_hip_angle, left_ankle_angle, right_ankle_angle
     체격 2개: torso_lean, hip_width
     좌/우 derived 6개: knee_diff, knee_max, knee_min,
                        ankle_diff, ankle_max, hip_diff
+    kick/plant 4개: kick_knee, plant_knee, kick_ankle, plant_ankle
+        * 추론 시 metadata 없으므로 무릎 각도 max=차는 발, min=디딤발 heuristic 적용.
+        * 학습은 metaData.kicking_foot 기반 정확한 매핑 사용.
 """
 from __future__ import annotations
 
@@ -78,6 +81,13 @@ def _frame_feature_vector(lm: list[dict]) -> list[float]:
     right_ankle = _angle(lm, RIGHT_KNEE, RIGHT_ANKLE, RIGHT_FOOT)
     torso = _torso_lean(lm)
     hip_w = _dist(lm, LEFT_HIP, RIGHT_HIP)
+    # 추론 시 kicking_foot 정보 없으므로 heuristic: 무릎 더 펴진 쪽(각도 max)이 차는 발
+    if left_knee >= right_knee:
+        kick_knee, plant_knee = left_knee, right_knee
+        kick_ankle, plant_ankle = left_ankle, right_ankle
+    else:
+        kick_knee, plant_knee = right_knee, left_knee
+        kick_ankle, plant_ankle = right_ankle, left_ankle
     return [
         left_knee, right_knee, left_hip, right_hip, left_ankle, right_ankle,
         torso, hip_w,
@@ -87,6 +97,7 @@ def _frame_feature_vector(lm: list[dict]) -> list[float]:
         abs(left_ankle - right_ankle),  # ankle_diff
         max(left_ankle, right_ankle),  # ankle_max
         abs(left_hip - right_hip),  # hip_diff
+        kick_knee, plant_knee, kick_ankle, plant_ankle,
     ]
 
 
@@ -98,7 +109,7 @@ class FeatureBuilder:
     """
 
     def feature_dim(self) -> int:
-        return 14
+        return 18
 
     def build_single(self, frame_landmarks: list[list[dict]]) -> list[float]:
         if not frame_landmarks:
