@@ -179,10 +179,9 @@ def _key_angles_from_landmarks(landmarks_per_frame) -> KeyAngles:
         RIGHT_FOOT,
         RIGHT_HIP,
         RIGHT_KNEE,
-        FeatureBuilder,
+        _angle,
     )
 
-    fb = FeatureBuilder()
     triples = {
         "left_knee": (LEFT_HIP, LEFT_KNEE, LEFT_ANKLE),
         "right_knee": (RIGHT_HIP, RIGHT_KNEE, RIGHT_ANKLE),
@@ -191,7 +190,7 @@ def _key_angles_from_landmarks(landmarks_per_frame) -> KeyAngles:
     }
     stats: dict[str, AngleStats] = {}
     for name, (a, b, c) in triples.items():
-        vals = [fb._joint_angle(lm, a, b, c) for lm in landmarks_per_frame]
+        vals = [_angle(lm, a, b, c) for lm in landmarks_per_frame]
         arr = np.array(vals)
         stats[name] = AngleStats(
             mean=float(arr.mean()), min=float(arr.min()), max=float(arr.max())
