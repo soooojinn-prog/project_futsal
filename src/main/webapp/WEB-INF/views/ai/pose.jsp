@@ -14,6 +14,12 @@
     .pose-hero h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px;
                      background: linear-gradient(135deg, var(--accent), #6cf);
                      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    /* h1 그라데이션이 이모지까지 칠하지 않도록 분리 — span으로 원래 색상 유지 */
+    .pose-hero h1 .hero-emoji {
+      -webkit-text-fill-color: initial; color: initial; background: none;
+      -webkit-background-clip: initial; background-clip: initial;
+      margin-right: 8px; font-style: normal;
+    }
     .pose-hero p { color: var(--text-muted); font-size: 15px; line-height: 1.6; }
     .pose-wrap { max-width: 880px; margin: 0 auto 60px; padding: 0 24px; }
     .pose-card { background: linear-gradient(135deg, var(--bg-3), var(--bg-4));
@@ -53,7 +59,7 @@
 </jsp:include>
 
 <section class="pose-hero">
-  <h1>🏃 AI 자세 분석</h1>
+  <h1><span class="hero-emoji">🏃</span>AI 자세 분석</h1>
   <p>풋살 킥 영상을 업로드하면 AI가 자세를 분석해 드려요.<br>
     MediaPipe로 33개 관절을 추출하고, 학습된 모델이 인사이드킥·인스텝킥·인프런트킥 중 어느 자세인지 분류 + 자연어 피드백을 제공합니다.
     <small style="color:var(--text-muted)">(드리블·패스 분류는 Phase 2 예정)</small></p>

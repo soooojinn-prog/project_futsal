@@ -27,6 +27,12 @@
       background: linear-gradient(135deg, var(--accent), #6cf);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
+    /* h1 그라데이션이 이모지까지 칠하지 않도록 분리 — span으로 원래 색상 유지 */
+    .coord-hero h1 .hero-emoji {
+      -webkit-text-fill-color: initial; color: initial; background: none;
+      -webkit-background-clip: initial; background-clip: initial;
+      margin-right: 8px; font-style: normal;
+    }
     .coord-hero p { color: var(--text-muted); font-size: 15px; line-height: 1.6; }
 
     .coord-wrap { max-width: 880px; margin: 0 auto 60px; padding: 0 24px; }
@@ -189,7 +195,7 @@
 </jsp:include>
 
 <section class="coord-hero">
-  <h1>🤖 AI 매치 코디네이터</h1>
+  <h1><span class="hero-emoji">🤖</span>AI 매치 코디네이터</h1>
   <p>자연어 한 줄로 풋살 매치 또는 토너먼트를 자동으로 기획해 드려요.<br>
     경기장 검색부터 일정 조율까지 — AI가 알아서 준비합니다.</p>
 </section>
