@@ -135,6 +135,12 @@ def main():
         help="클래스당 최대 샘플 수 (불균형 완화용). 미지정 시 전체.",
     )
     parser.add_argument("--seed", default=42, type=int)
+    parser.add_argument(
+        "--camera-filter",
+        default=None,
+        type=str,
+        help="파일명에 이 패턴이 포함된 JSON만 사용 (예: 'a-01'로 정면 카메라만)",
+    )
     args = parser.parse_args()
 
     random.seed(args.seed)
@@ -144,7 +150,9 @@ def main():
             print(f"[skip] {d} 없음")
             continue
         files = list(d.rglob("*.json"))
-        print(f"{d}: {len(files)}개 JSON 발견")
+        if args.camera_filter:
+            files = [f for f in files if args.camera_filter in f.name]
+        print(f"{d}: {len(files)}개 JSON 발견 (filter={args.camera_filter or 'none'})")
         for jf in files:
             try:
                 data = json.loads(jf.read_text(encoding="utf-8"))

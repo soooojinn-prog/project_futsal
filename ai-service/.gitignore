@@ -7,6 +7,7 @@ data/raw/*.pdf
 data/raw/excluded_pdf/
 data/chroma_db/
 data/pose_raw/
+data/pose_labels/
 data/pose_features.csv
 models/*.joblib
 models/*.pt
