@@ -37,15 +37,62 @@
     .btn-coord:disabled { opacity: 0.5; cursor: not-allowed; }
     .result-card { background: linear-gradient(135deg, var(--bg-3), var(--bg-4));
                     border: 1px solid var(--border); border-radius: 14px; padding: 24px; margin-top: 24px; }
-    .angle-row { display: flex; justify-content: space-between; padding: 10px 0;
-                  border-bottom: 1px dashed var(--border); font-size: 14px; }
-    .angle-row:last-child { border-bottom: none; }
-    .badge-class { display: inline-block; padding: 6px 14px; border-radius: 8px;
-                    background: rgba(0,212,163,0.15); color: var(--accent); font-weight: 700; }
+    .result-header { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+    .class-badge { display: inline-block; align-self: flex-start;
+                   padding: 8px 18px; border-radius: 999px;
+                   background: linear-gradient(135deg, rgba(0,212,163,0.25), rgba(0,212,163,0.1));
+                   color: var(--accent); font-weight: 800; font-size: 18px; }
+    .class-desc { color: var(--text-muted); font-size: 13px; line-height: 1.5; }
+    .confidence-block { margin-bottom: 16px; }
+    .conf-row { display: flex; justify-content: space-between; font-size: 13px;
+                color: var(--text-muted); margin-bottom: 6px; }
+    .conf-pct { color: var(--text); font-weight: 700; }
+    .conf-bar-wrap { height: 10px; background: var(--bg-1); border-radius: 999px; overflow: hidden; }
+    .conf-bar { height: 100%; border-radius: 999px; transition: width 0.4s ease; }
+    .warn-banner { background: rgba(234,88,12,0.08); border: 1px solid rgba(234,88,12,0.3);
+                   border-radius: 10px; padding: 12px 14px; margin: 16px 0;
+                   font-size: 13px; line-height: 1.5; }
+    .warn-banner strong { color: #fb923c; }
+    .warn-tip { color: var(--text-muted); margin-top: 6px; font-size: 12.5px; }
+    .section-title { font-size: 14px; margin: 18px 0 10px;
+                      color: var(--text); font-weight: 600; }
+    .prob-list { display: flex; flex-direction: column; gap: 8px; }
+    .prob-item { font-size: 13px; }
+    .prob-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .prob-name { color: var(--text); }
+    .prob-pct { color: var(--text-muted); }
+    .prob-bar-wrap { height: 8px; background: var(--bg-1); border-radius: 999px; overflow: hidden; }
+    .prob-bar { height: 100%; transition: width 0.4s ease; }
+    .angle-block { padding: 10px 0; border-bottom: 1px dashed var(--border); font-size: 13px; }
+    .angle-block:last-of-type { border-bottom: none; }
+    .angle-head { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .angle-label { color: var(--text); font-weight: 600; }
+    .angle-vals { color: var(--text-muted); font-size: 12.5px; }
+    .angle-track { position: relative; height: 18px; background: var(--bg-1);
+                    border-radius: 6px; margin: 6px 0; }
+    .angle-ref { position: absolute; top: 0; height: 100%;
+                  background: rgba(0,212,163,0.25); border-radius: 6px; }
+    .angle-user { position: absolute; top: -4px; width: 4px; height: 26px;
+                   background: #fb923c; border-radius: 2px;
+                   box-shadow: 0 0 0 2px rgba(0,0,0,0.6); transform: translateX(-2px); }
+    .angle-axis { position: absolute; bottom: -16px; left: 0; right: 0;
+                   display: flex; justify-content: space-between;
+                   font-size: 10px; color: var(--text-muted); }
+    .angle-foot { font-size: 11.5px; margin-top: 18px; color: var(--text-muted); }
+    .angle-ok { color: var(--accent); font-weight: 600; }
+    .angle-warn { color: #fb923c; font-weight: 600; }
     .feedback-box { background: rgba(0,212,163,0.05); border-left: 3px solid var(--accent);
-                    padding: 16px; border-radius: 6px; margin-top: 16px; line-height: 1.6; }
-    .timing-bar { color: var(--text-muted); font-size: 12px; margin-top: 16px;
-                   padding-top: 12px; border-top: 1px solid var(--border); }
+                    padding: 14px 16px; border-radius: 8px; font-size: 14px; line-height: 1.7;
+                    white-space: pre-wrap; }
+    .timing-details { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border);
+                       color: var(--text-muted); font-size: 12px; }
+    .timing-details summary { cursor: pointer; padding: 4px 0; }
+    .timing-row { padding: 3px 0 3px 14px; }
+    /* 업로드 가이드 */
+    .upload-guide { background: rgba(0,212,163,0.05); border-left: 3px solid var(--accent);
+                    border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
+                    font-size: 12.5px; line-height: 1.55; color: var(--text-muted); }
+    .upload-guide strong { color: var(--text); }
     .loading-spinner { display: inline-block; width: 14px; height: 14px;
                         border: 2px solid rgba(0,0,0,0.2); border-top-color: #000;
                         border-radius: 50%; animation: spin 0.6s linear infinite;
@@ -67,6 +114,12 @@
 
 <main class="pose-wrap">
   <div class="pose-card">
+    <div class="upload-guide">
+      <strong>📌 더 정확한 분석을 위한 촬영 가이드</strong><br>
+      · <strong>정면 카메라</strong>에서 임팩트 순간이 포함된 <strong>5~10초</strong> 영상<br>
+      · 사람이 화면 중앙에 전신으로 보이도록<br>
+      · 정지 자세 / 측면 클로즈업 / 사람 다수 / 역광은 피해주세요
+    </div>
     <div id="uploadZone" class="upload-zone">
       <div class="icon">📹</div>
       <p style="margin:0">여기에 mp4 영상을 드롭하거나 클릭해서 선택하세요<br>
