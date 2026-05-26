@@ -78,6 +78,7 @@ def single_stadium_node(state: AgentState, tools: Tools) -> AgentState:
         date_from=slots.get("date_from"),
         date_to=slots.get("date_to"),
     )
+    state["tool_calls"].append("search_stadium")
     state["stadium_candidates"] = candidates
     if not candidates:
         state["warnings"].append("조건에 맞는 경기장이 없습니다.")
@@ -97,6 +98,7 @@ def single_team_node(state: AgentState, tools: Tools) -> AgentState:
     date_to = slots.get("date_to") or date_from
     team_info["members"] = tools.list_team_members(team_id)
     team_info["conflicts"] = tools.find_team_conflicts(team_id, date_from, date_to)
+    state["tool_calls"].extend(["list_team_members", "find_team_conflicts"])
     state["team_info"] = team_info
     return state
 
@@ -138,6 +140,7 @@ def single_match_node(state: AgentState, tools: Tools) -> AgentState:
 
     for stadium in candidates[:5]:
         slots = tools.list_stadium_slots(stadium["id"], date)
+        state["tool_calls"].append("list_stadium_slots")
         for slot in slots:
             if _slot_conflicts(slot, conflicts):
                 state["warnings"].append(
@@ -215,6 +218,18 @@ def tournament_assemble_node(state: AgentState, tools: Tools) -> AgentState:
     state["bracket"] = match_result["bracket"]
     state["proposals"] = match_result["proposals"]
     state["warnings"].extend(match_result.get("warnings", []))
+    # StadiumAgent: search_stadium + list_stadium_slots / TeamAgent: list_team_members + find_team_conflicts /
+    # MatchAgent: generate_bracket + propose_match
+    state["tool_calls"].extend(
+        [
+            "search_stadium",
+            "list_stadium_slots",
+            "list_team_members",
+            "find_team_conflicts",
+            "generate_bracket",
+            "propose_match",
+        ]
+    )
     return state
 
 

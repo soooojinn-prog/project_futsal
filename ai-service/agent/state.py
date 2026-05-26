@@ -12,6 +12,8 @@ class AgentState(TypedDict):
     bracket: dict | None
     warnings: list[str]
     errors: list[str]
+    # 노드/sub-agent가 호출한 Tool 흔적 (평가용). 예: ["search_stadium", "list_stadium_slots", ...]
+    tool_calls: list[str]
     proposal_id: NotRequired[str]
 
 
@@ -27,4 +29,5 @@ def make_initial_state(user_input: str, user_id: int) -> AgentState:
         bracket=None,
         warnings=[],
         errors=[],
+        tool_calls=[],
     )
