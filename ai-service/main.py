@@ -252,7 +252,9 @@ def agent_run(req: AgentRequest):
         raise HTTPException(
             status_code=503, detail="에이전트가 초기화되지 않았습니다."
         )
-    state = make_initial_state(user_input=req.user_input, user_id=req.user_id)
+    state = make_initial_state(
+        user_input=req.user_input, user_id=req.user_id, team_info=req.team_info
+    )
     final = agent_graph.invoke(state)
 
     matches = [_match_dict_to_proposal(m) for m in final.get("proposals", [])]

@@ -17,14 +17,16 @@ class AgentState(TypedDict):
     proposal_id: NotRequired[str]
 
 
-def make_initial_state(user_input: str, user_id: int) -> AgentState:
+def make_initial_state(
+    user_input: str, user_id: int, team_info: dict | None = None
+) -> AgentState:
     return AgentState(
         user_input=user_input,
         user_id=user_id,
         intent="UNKNOWN",
         slots={},
         stadium_candidates=[],
-        team_info={},
+        team_info=team_info or {},
         proposals=[],
         bracket=None,
         warnings=[],
