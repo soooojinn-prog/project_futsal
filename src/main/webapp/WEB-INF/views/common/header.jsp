@@ -113,6 +113,28 @@
 
     <script>
       var chatOpen = false;
+      // citation source 한글 라벨 매핑 (코퍼스 파일명 stem → 사용자 친화 이름)
+      var CHAT_SOURCE_LABELS = {
+        'rules 01 pitch': '규칙 01 · 경기장',
+        'rules 02 ball': '규칙 02 · 공',
+        'rules 03 players': '규칙 03 · 선수',
+        'rules 07 duration': '규칙 07 · 경기 시간',
+        'rules 08 kickoff': '규칙 08 · 킥오프',
+        'rules 09 inout': '규칙 09 · 공 인/아웃',
+        'rules 11 offside': '규칙 11 · 오프사이드',
+        'rules 12 fouls': '규칙 12 · 파울',
+        'rules 13 freekick': '규칙 13 · 프리킥',
+        'rules 14 penalty': '규칙 14 · 페널티킥',
+        'rules 15 kickin': '규칙 15 · 킥인',
+        'rules 16 goalclearance': '규칙 16 · 골 클리언스',
+        'rules 17 corner': '규칙 17 · 코너킥',
+        'formations 4 0': '4-0 포메이션',
+        'formations 3 1': '3-1 포메이션',
+        'formations 2 2': '2-2 포메이션',
+        'tactics pressing': '압박·카운터 전술',
+        'training basics': '기초 훈련'
+      };
+
       function toggleChat() {
         chatOpen = !chatOpen;
         var panel = document.getElementById('chat-panel');
@@ -125,11 +147,27 @@
         var el = document.createElement('div');
         el.style.cssText = isUser
           ? 'background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#000;border-radius:12px 12px 4px 12px;padding:10px 14px;max-width:85%;align-self:flex-end;font-size:14px;font-weight:600;'
-          : 'background:var(--bg-4);border:1px solid var(--border);color:var(--text);border-radius:12px 12px 12px 4px;padding:10px 14px;max-width:85%;font-size:14px;';
+          : 'background:var(--bg-4);border:1px solid var(--border);color:var(--text);border-radius:12px 12px 12px 4px;padding:10px 14px;max-width:85%;font-size:14px;white-space:pre-wrap;line-height:1.6;';
         el.textContent = text;
         var messages = document.getElementById('chat-messages');
         messages.appendChild(el);
         messages.scrollTop = messages.scrollHeight;
+        return el;
+      }
+
+      function addLoadingBubble() {
+        var el = document.createElement('div');
+        el.style.cssText =
+          'background:var(--bg-4);border:1px solid var(--border);color:var(--text-muted);' +
+          'border-radius:12px 12px 12px 4px;padding:10px 14px;max-width:85%;font-size:14px;' +
+          'display:inline-flex;gap:4px;align-items:center;';
+        el.innerHTML =
+          '<span class="chat-dot"></span><span class="chat-dot"></span><span class="chat-dot"></span>' +
+          '<span style="margin-left:6px;font-size:12px;">생각하는 중…</span>';
+        var messages = document.getElementById('chat-messages');
+        messages.appendChild(el);
+        messages.scrollTop = messages.scrollHeight;
+        return el;
       }
 
       function sendMessage() {
@@ -139,6 +177,8 @@
         input.value = '';
         addBubble(msg, true);
 
+        var loadingEl = addLoadingBubble();
+
         fetch('${pageContext.request.contextPath}/ai/chat', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
@@ -146,19 +186,41 @@
         })
         .then(function(res) { return res.json(); })
         .then(function(data) {
+          if (loadingEl && loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
           var text = data.message || data.error || '오류가 발생했습니다.';
           if (data.mode === 'RAG' && Array.isArray(data.citations) && data.citations.length) {
+            var seen = {};
             var refs = data.citations.map(function(c) {
-              var p = c.page ? ' p.' + c.page : '';
-              return '[' + c.source + (c.section ? ' / ' + c.section : '') + p + ']';
-            }).join(' ');
-            text += '\n\n📚 ' + refs;
+              var label = CHAT_SOURCE_LABELS[c.source] || c.source;
+              return label;
+            }).filter(function(r) {
+              if (seen[r]) return false;
+              seen[r] = true;
+              return true;
+            }).map(function(r) { return '· ' + r; }).join('\n');
+            text += '\n\n📚 참고\n' + refs;
           }
           addBubble(text, false);
         })
-        .catch(function() { addBubble('연결 오류가 발생했습니다.', false); });
+        .catch(function() {
+          if (loadingEl && loadingEl.parentNode) loadingEl.parentNode.removeChild(loadingEl);
+          addBubble('연결 오류가 발생했습니다.', false);
+        });
       }
     </script>
+    <style>
+      .chat-dot {
+        display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+        background: var(--accent); opacity: 0.4;
+        animation: chat-dot-bounce 1.2s infinite ease-in-out;
+      }
+      .chat-dot:nth-child(2) { animation-delay: 0.15s; }
+      .chat-dot:nth-child(3) { animation-delay: 0.3s; }
+      @keyframes chat-dot-bounce {
+        0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+        40% { opacity: 1; transform: translateY(-4px); }
+      }
+    </style>
   </c:if>
 
   <main class="container py-4">
