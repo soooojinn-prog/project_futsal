@@ -10,3 +10,4 @@
 | 2026-05-22 14:50 | 16000 | 14 | 0.680 | 0.680 | 20.85 | 0.579 | 0.579 | 0.06 | **RandomForest** | (사전 backfill) | 4차 — 남+여 + symmetric derived feature 6개 추가 (knee_diff/max/min, ankle_diff/max, hip_diff) 8→14 feature. 정확도 거의 변화 없음 — frame 단위 sample이 너무 다양 |
 | 2026-05-22 15:28:05 | 8000 | 14 | 0.781 | 0.781 | 21.94 | 0.670 | 0.670 | 0.05 | **RandomForest** | [model_card_2026-05-22_152805.md](model_card_2026-05-22_152805.md) | 5차 — 카메라 a-01 정면만 필터, 남+여 + 14 feat (다양성 1/8로 축소) |
 | 2026-05-22 15:32:34 | 8000 | 18 | 0.786 | 0.786 | 21.63 | 0.667 | 0.667 | 0.05 | **RandomForest** | [model_card_2026-05-22_153234.md](model_card_2026-05-22_153234.md) | 7차 — a-01 카메라 + kick/plant 4개 부활(학습은 metadata, 추론은 무릎각 max/min heuristic). 18 feature |
+| 2026-05-26 20:57:17 | 3966 | 18 | 0.942 | 0.864 | 17.92 | 0.907 | 0.721 | 0.15 | **RandomForest** | [model_card_2026-05-26_205717.md](model_card_2026-05-26_205717.md) | 8차 — 여성만 + a-01 + 18 feat (1차 0.942 패턴 재현 + 추론 호환 보장) |
