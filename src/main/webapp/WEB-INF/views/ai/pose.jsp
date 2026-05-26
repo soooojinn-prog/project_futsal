@@ -1,12 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <title>AI 자세 분석 — letsfutsal</title>
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/style/bootstrap/bootstrap.min.css">
-  <style>
+<jsp:include page="../common/header.jsp">
+  <jsp:param name="title" value="AI 자세 분석"/>
+  <jsp:param name="menu" value="pose"/>
+</jsp:include>
+
+<style>
     :root { --accent: #00d4a3; --bg-1: #0a0a0a; --bg-3: #1a1a1a; --bg-4: #232323;
             --border: rgba(255,255,255,0.08); --text: #f5f5f5; --text-muted: #a0a0a0; }
     body { background: var(--bg-1); color: var(--text); }
@@ -114,11 +113,6 @@
                         margin-right: 8px; vertical-align: middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
-</head>
-<body>
-<jsp:include page="/WEB-INF/views/common/header.jsp">
-  <jsp:param name="menu" value="pose"/>
-</jsp:include>
 
 <section class="pose-hero">
   <h1><span class="hero-emoji">🏃</span>AI 자세 분석</h1>
@@ -150,5 +144,3 @@
 
 <script>window.POSE_CTX = '${pageContext.request.contextPath}';</script>
 <script src="${pageContext.request.contextPath}/resources/script/pose_analyzer.js"></script>
-</body>
-</html>

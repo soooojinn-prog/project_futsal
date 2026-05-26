@@ -1,12 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="jakarta.tags.core" prefix="c" %>
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <title>AI 매치 코디네이터 — letsfutsal</title>
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/style/bootstrap/bootstrap.min.css">
-  <style>
+<jsp:include page="../common/header.jsp">
+  <jsp:param name="title" value="AI 매치 코디네이터"/>
+  <jsp:param name="menu" value="coordinator"/>
+</jsp:include>
+
+<style>
     :root {
       --accent: #00d4a3;
       --accent-dark: #00a37e;
@@ -232,11 +231,7 @@
       .bracket-round { min-width: 130px; }
       .bracket-match { min-width: 120px; padding: 6px 10px; }
     }
-</head>
-<body>
-<jsp:include page="/WEB-INF/views/common/header.jsp">
-  <jsp:param name="menu" value="coordinator"/>
-</jsp:include>
+  </style>
 
 <section class="coord-hero">
   <h1><span class="hero-emoji">🤖</span>AI 매치 코디네이터</h1>
@@ -274,5 +269,3 @@
   window.AGENT_CTX = '${pageContext.request.contextPath}';
 </script>
 <script src="${pageContext.request.contextPath}/resources/script/agent_coordinator.js"></script>
-</body>
-</html>
