@@ -178,11 +178,46 @@ from concurrent.futures import ThreadPoolExecutor
 from .subagents import MatchAgent, StadiumAgent, TeamAgent
 
 
+def _round_to_power_of_2(n: int) -> int:
+    """2/4/8/16 중 가장 가까운 거듭제곱(generate_bracket 호환). 최소 2, 최대 16."""
+    n = max(2, min(int(n), 16))
+    powers = [2, 4, 8, 16]
+    return min(powers, key=lambda p: (abs(p - n), -p))
+
+
 def tournament_assemble_node(state: AgentState, tools: Tools) -> AgentState:
-    """3개 sub-agent를 병렬 실행 후 결과 통합."""
+    """3개 sub-agent를 병렬 실행 후 결과 통합.
+
+    사용자 소속 팀이 부족하면 slots.team_count 기준으로 데모용 더미 팀을 자동
+    보충(power-of-2 보정). 실제 토너먼트 운영 시 모집 팀을 따로 받아야 한다는
+    안내 warning 함께 표시.
+    """
     slots = state["slots"]
     team_info = state["team_info"]
-    team_ids: list[int] = team_info.get("team_ids", [])
+    team_ids: list[int] = list(team_info.get("team_ids", []))
+    team_names: dict = dict(team_info.get("team_names", {}))
+    desired = slots.get("team_count") or 4
+    desired = _round_to_power_of_2(desired)
+
+    if len(team_ids) < desired:
+        existing = set(team_ids)
+        next_id = 1
+        added: list[int] = []
+        while len(team_ids) < desired:
+            if next_id not in existing:
+                team_ids.append(next_id)
+                team_names.setdefault(next_id, f"데모팀 T{next_id}")
+                added.append(next_id)
+                existing.add(next_id)
+            next_id += 1
+        if added:
+            state["warnings"].append(
+                f"실제 소속 팀이 부족해 데모용 팀({', '.join('T'+str(i) for i in added)})을 "
+                f"자동 추가했습니다. 운영 시에는 모집 팀을 따로 등록해 주세요."
+            )
+        # 보정된 team_info를 state에도 반영해 sub-graph 결과 통합 시 이름 lookup 가능
+        team_info = {**team_info, "team_ids": team_ids, "team_names": team_names}
+
     date = slots.get("date_from", "")
 
     stadium_agent = StadiumAgent(tools=tools)
@@ -201,13 +236,19 @@ def tournament_assemble_node(state: AgentState, tools: Tools) -> AgentState:
         stadium_result = f_stadium.result()
         team_result = f_team.result()
 
-    teams_with_names = [
-        {
-            "id": t["id"],
-            "name": team_info.get("team_names", {}).get(t["id"], str(t["id"])),
-        }
-        for t in team_result["teams"]
-    ]
+    # team_result["teams"]가 비어 있어도 보정된 team_ids로 진행
+    if not team_result["teams"]:
+        teams_with_names = [
+            {"id": tid, "name": team_names.get(tid, f"T{tid}")} for tid in team_ids
+        ]
+    else:
+        teams_with_names = [
+            {
+                "id": t["id"],
+                "name": team_names.get(t["id"], str(t["id"])),
+            }
+            for t in team_result["teams"]
+        ]
 
     match_result = match_agent.run(
         teams=teams_with_names, slots=stadium_result["slots"]
