@@ -4,5 +4,5 @@
 {"id":"s04","user_input":"강남 풋살장 추천해줘","expected_intent":"SINGLE","expected_tools":["search_stadium"],"min_proposals":0}
 {"id":"s05","user_input":"4팀 토너먼트, 강남 일요일","expected_intent":"TOURNAMENT","expected_tools":["search_stadium","list_stadium_slots","list_team_members"],"min_proposals":3}
 {"id":"s06","user_input":"8팀 토너먼트 기획해줘","expected_intent":"TOURNAMENT","expected_tools":["search_stadium","list_stadium_slots"],"min_proposals":7}
-{"id":"s07","user_input":"토너먼트 경기장 부족 가정","expected_intent":"TOURNAMENT","expected_tools":["search_stadium"],"min_proposals":0,"expect_warning":true}
+{"id":"s07","user_input":"제주도에서 4팀 토너먼트 잡아줘","expected_intent":"TOURNAMENT","expected_tools":["search_stadium"],"min_proposals":0,"expect_warning":true}
 {"id":"s08","user_input":"3팀으로 토너먼트 해줘","expected_intent":"TOURNAMENT","expected_tools":[],"min_proposals":0,"expect_warning":true}

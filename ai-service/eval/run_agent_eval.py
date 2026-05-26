@@ -60,13 +60,18 @@ def judge_tool_correctness(
 
 
 def run_one(scenario: dict, graph, claude: ClaudeClient) -> dict:
+    import re
+
     state = make_initial_state(scenario["user_input"], user_id=1)
-    team_count = 4 if "4팀" in scenario["user_input"] else 8
+    # "3팀" / "4팀" / "8팀" 등을 정규식으로 추출 (인식 못하면 4팀 기본)
+    m = re.search(r"(\d+)\s*팀", scenario["user_input"])
+    team_count = int(m.group(1)) if m else 4
+    team_count = max(1, min(team_count, 16))  # 안전 가드
     state["team_info"] = {
         "team_ids": list(range(1, team_count + 1)),
-        "team_names": {i: f"T{i}" for i in range(1, 9)},
-        "team_id": 5,
-        "team_name": "T5",
+        "team_names": {i: f"T{i}" for i in range(1, team_count + 1)},
+        "team_id": min(team_count, 5),
+        "team_name": f"T{min(team_count, 5)}",
     }
     final = graph.invoke(state)
 
@@ -74,11 +79,16 @@ def run_one(scenario: dict, graph, claude: ClaudeClient) -> dict:
     proposal_ok = (
         1 if len(final.get("proposals", [])) >= scenario["min_proposals"] else 0
     )
+    # tool_calls가 명시적으로 잡혀 있으면 LLM judge 없이 결정적으로 검증
+    actual_tools = final.get("tool_calls", [])
+    expected_tools = scenario.get("expected_tools", [])
+    if expected_tools:
+        tool_ok = 1 if all(t in actual_tools for t in expected_tools) else 0
+    else:
+        tool_ok = 1
     signals = final.get("warnings", []) + final.get("errors", [])
     signals.append(f"proposals_count={len(final.get('proposals', []))}")
-    tool_ok = judge_tool_correctness(
-        claude, scenario.get("expected_tools", []), signals
-    )
+    signals.append(f"tool_calls={actual_tools}")
 
     if scenario.get("expect_warning") and not final.get("warnings"):
         proposal_ok = 0
