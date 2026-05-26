@@ -15,6 +15,8 @@ import io.github.wizwix.letsfutsal.dto.ConfirmRequestDTO;
 import io.github.wizwix.letsfutsal.dto.MatchProposalDTO;
 import io.github.wizwix.letsfutsal.dto.ProposalDTO;
 import io.github.wizwix.letsfutsal.mapper.MatchMapper;
+import io.github.wizwix.letsfutsal.mapper.UserMapper;
+import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,7 @@ class AgentServiceTest {
   private RestTemplate restTemplate;
   private MockRestServiceServer server;
   private MatchMapper matchMapper;
+  private UserMapper userMapper;
   private AgentService service;
 
   @BeforeEach
@@ -35,7 +38,12 @@ class AgentServiceTest {
     restTemplate = new RestTemplate();
     server = MockRestServiceServer.createServer(restTemplate);
     matchMapper = mock(MatchMapper.class);
-    service = new AgentService(restTemplate, new ObjectMapper(), matchMapper, "http://fake:8000");
+    userMapper = mock(UserMapper.class);
+    // 기본: 사용자가 속한 팀 없음 → AgentService.run이 team_info 생략
+    when(userMapper.selectTeamsByUserId(any(Long.class))).thenReturn(Collections.emptyList());
+    service =
+        new AgentService(
+            restTemplate, new ObjectMapper(), matchMapper, userMapper, "http://fake:8000");
   }
 
   @Test

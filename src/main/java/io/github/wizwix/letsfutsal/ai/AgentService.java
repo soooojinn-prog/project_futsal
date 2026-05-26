@@ -5,12 +5,15 @@ import io.github.wizwix.letsfutsal.dto.ConfirmRequestDTO;
 import io.github.wizwix.letsfutsal.dto.MatchDTO;
 import io.github.wizwix.letsfutsal.dto.MatchProposalDTO;
 import io.github.wizwix.letsfutsal.dto.ProposalDTO;
+import io.github.wizwix.letsfutsal.dto.TeamDTO;
 import io.github.wizwix.letsfutsal.enums.Gender;
 import io.github.wizwix.letsfutsal.enums.Match;
 import io.github.wizwix.letsfutsal.mapper.MatchMapper;
+import io.github.wizwix.letsfutsal.mapper.UserMapper;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -29,15 +32,20 @@ public class AgentService {
   private final RestTemplate restTemplate;
   private final ObjectMapper objectMapper;
   private final MatchMapper matchMapper;
+  private final UserMapper userMapper;
   private final String aiBaseUrl;
 
   @Autowired
   public AgentService(
-      RestTemplate restTemplate, ObjectMapper objectMapper, MatchMapper matchMapper) {
+      RestTemplate restTemplate,
+      ObjectMapper objectMapper,
+      MatchMapper matchMapper,
+      UserMapper userMapper) {
     this(
         restTemplate,
         objectMapper,
         matchMapper,
+        userMapper,
         System.getenv().getOrDefault("AI_SERVICE_URL", "http://localhost:8000"));
   }
 
@@ -45,10 +53,12 @@ public class AgentService {
       RestTemplate restTemplate,
       ObjectMapper objectMapper,
       MatchMapper matchMapper,
+      UserMapper userMapper,
       String aiBaseUrl) {
     this.restTemplate = restTemplate;
     this.objectMapper = objectMapper;
     this.matchMapper = matchMapper;
+    this.userMapper = userMapper;
     this.aiBaseUrl = aiBaseUrl;
   }
 
@@ -56,6 +66,30 @@ public class AgentService {
     Map<String, Object> body = new HashMap<>();
     body.put("user_input", userInput);
     body.put("user_id", userId);
+
+    // 사용자가 속한 팀들을 조회해 Python에 전달 — 토너먼트 모드의 conflict 체크
+    // (`find_team_conflicts`) + 자동 참가 팀 매핑에 사용된다. 팀이 없으면 team_info 생략.
+    List<TeamDTO> teams = userMapper.selectTeamsByUserId(userId);
+    if (teams != null && !teams.isEmpty()) {
+      TeamDTO primary = teams.get(0);
+      Map<String, Object> teamInfo = new HashMap<>();
+      teamInfo.put("team_id", primary.getTeamId());
+      teamInfo.put("team_name", primary.getTeamName());
+      List<Long> teamIds = new ArrayList<>();
+      Map<Long, String> teamNames = new LinkedHashMap<>();
+      for (TeamDTO t : teams) {
+        teamIds.add(t.getTeamId());
+        teamNames.put(t.getTeamId(), t.getTeamName());
+      }
+      teamInfo.put("team_ids", teamIds);
+      teamInfo.put("team_names", teamNames);
+      body.put("team_info", teamInfo);
+      log.info("Agent run: user {}의 팀 {}개 자동 매핑 (primary={})",
+          userId, teams.size(), primary.getTeamId());
+    } else {
+      log.info("Agent run: user {}이 속한 팀이 없어 team_info 생략", userId);
+    }
+
     try {
       return restTemplate.postForObject(
           aiBaseUrl + "/agent/run", body, ProposalDTO.class);
