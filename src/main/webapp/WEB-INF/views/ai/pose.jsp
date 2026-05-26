@@ -93,6 +93,21 @@
                     border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
                     font-size: 12.5px; line-height: 1.55; color: var(--text-muted); }
     .upload-guide strong { color: var(--text); }
+
+    /* ───── 모바일 반응형 ───── */
+    @media (max-width: 768px) {
+      .pose-hero { margin: 20px auto 8px; padding: 0 16px; }
+      .pose-hero h1 { font-size: 22px; }
+      .pose-hero p { font-size: 13px; }
+      .pose-wrap { padding: 0 16px 40px; }
+      .pose-card { padding: 16px; }
+      .result-card { padding: 16px; }
+      .class-badge { font-size: 16px; padding: 6px 14px; }
+      .upload-zone { padding: 24px 12px; }
+      .upload-zone .icon { font-size: 36px; }
+      .angle-track { height: 16px; }
+      .angle-user { height: 22px; }
+    }
     .loading-spinner { display: inline-block; width: 14px; height: 14px;
                         border: 2px solid rgba(0,0,0,0.2); border-top-color: #000;
                         border-radius: 50%; animation: spin 0.6s linear infinite;

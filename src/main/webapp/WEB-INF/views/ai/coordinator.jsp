@@ -217,6 +217,21 @@
     .bracket-stage { font-size: 10px; color: var(--accent); font-weight: 700;
                       display: block; margin-bottom: 4px;
                       text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ───── 모바일 반응형 ───── */
+    @media (max-width: 768px) {
+      .coord-hero { margin: 20px auto 8px; padding: 0 16px; }
+      .coord-hero h1 { font-size: 22px; }
+      .coord-hero p { font-size: 13px; }
+      .coord-wrap { padding: 0 16px 40px; }
+      .input-card { padding: 16px; border-radius: 12px; }
+      .preview-area, .result-card { padding: 16px; }
+      .match-card { padding: 14px; }
+      .bracket-card { padding: 12px; }
+      .bracket-wrap { gap: 14px; }
+      .bracket-round { min-width: 130px; }
+      .bracket-match { min-width: 120px; padding: 6px 10px; }
+    }
 </head>
 <body>
 <jsp:include page="/WEB-INF/views/common/header.jsp">

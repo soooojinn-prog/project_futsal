@@ -640,5 +640,24 @@ footer p { color: var(--text-2) !important; }
   .page-hero h2   { font-size: 1.65rem; }
   .section-heading{ font-size: 1.65rem; }
   .card-body      { padding: 1rem; }
-  nav .nav-link   { padding: 0.5rem 0.8rem !important; font-size: 0.95rem; }
+  nav .nav-link   { padding: 0.5rem 0.7rem !important; font-size: 0.9rem; }
+  /* 네비 메뉴 — 6개 항목이 좁은 화면에서 가로 스크롤 가능하도록 */
+  nav .nav.justify-content-center {
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  nav .nav.justify-content-center::-webkit-scrollbar { display: none; }
+  nav .nav-item { flex-shrink: 0; }
+  /* 챗봇 위젯 — 모바일에서 화면 거의 다 차도록 */
+  #ai-chat-widget { bottom: 16px !important; right: 16px !important; }
+  #chat-panel { width: calc(100vw - 32px) !important; height: 60vh !important; }
+  #chat-toggle-btn { width: 48px !important; height: 48px !important; }
+}
+
+@media (max-width: 480px) {
+  nav .nav-link   { padding: 0.45rem 0.6rem !important; font-size: 0.85rem; }
+  nav .nav-emoji  { font-size: 0.9em; }
 }
