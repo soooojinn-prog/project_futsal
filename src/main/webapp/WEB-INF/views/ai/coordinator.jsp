@@ -187,7 +187,36 @@
       vertical-align: middle;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-  </style>
+
+    /* ───── 토너먼트 대진표 ───── */
+    .bracket-card {
+      background: linear-gradient(135deg, var(--bg-3), var(--bg-2));
+      border: 1px solid var(--border); border-radius: 12px;
+      padding: 18px; margin-bottom: 16px; overflow-x: auto;
+    }
+    .bracket-title { font-size: 14px; font-weight: 600; margin-bottom: 12px;
+                      color: var(--text); }
+    .bracket-wrap { display: flex; gap: 24px; min-width: max-content; padding: 4px 0; }
+    .bracket-round { display: flex; flex-direction: column;
+                      justify-content: space-around; gap: 8px;
+                      position: relative; min-width: 160px; }
+    .bracket-round-title { font-size: 11px; color: var(--text-muted);
+                            text-transform: uppercase; letter-spacing: 0.5px;
+                            margin-bottom: 6px; text-align: center; font-weight: 600; }
+    .bracket-match {
+      background: var(--bg-1); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 12px; font-size: 12px;
+      min-width: 140px; position: relative;
+    }
+    .bracket-match.has-winner { border-color: rgba(0,212,163,0.4); }
+    .bracket-team { display: flex; justify-content: space-between; padding: 3px 0;
+                     color: var(--text); }
+    .bracket-team.team-b { border-top: 1px dashed var(--border); padding-top: 5px; margin-top: 3px; }
+    .bracket-team .vs-sep { color: var(--text-muted); }
+    .bracket-tbd { color: var(--text-muted); font-style: italic; }
+    .bracket-stage { font-size: 10px; color: var(--accent); font-weight: 700;
+                      display: block; margin-bottom: 4px;
+                      text-transform: uppercase; letter-spacing: 0.5px; }
 </head>
 <body>
 <jsp:include page="/WEB-INF/views/common/header.jsp">
@@ -218,6 +247,7 @@
   <div id="proposalArea" class="preview-area" style="display:none">
     <h2 class="preview-title">📋 AI가 준비한 미리보기</h2>
     <div id="warningsBox" class="warning-card" style="display:none"></div>
+    <div id="bracketArea" style="display:none"></div>
     <div id="matchList"></div>
     <button id="confirmBtn" class="btn-confirm">✅ 이대로 매치 만들기</button>
   </div>

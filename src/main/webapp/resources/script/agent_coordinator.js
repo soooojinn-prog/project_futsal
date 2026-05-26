@@ -102,6 +102,9 @@
       warnBox.style.display = 'none';
     }
 
+    // 토너먼트 대진표
+    renderBracket(p);
+
     const list = document.getElementById('matchList');
     list.innerHTML = '';
 
@@ -156,6 +159,63 @@
         renderProposal(currentProposal);
       });
     });
+  }
+
+  function renderBracket(p) {
+    const area = document.getElementById('bracketArea');
+    const b = p.bracket;
+    if (!b || !Array.isArray(b.rounds) || b.rounds.length === 0) {
+      area.style.display = 'none';
+      return;
+    }
+    // matchIdx → 매치 정보 매핑 (proposals와 match by index)
+    const matchByIdx = {};
+    b.rounds.forEach(function (round) {
+      round.forEach(function (m) { matchByIdx[m.matchIdx] = m; });
+    });
+    // proposals와 매치 정보 합치기 — proposals는 match 순서대로 옴
+    const proposals = p.matches || [];
+    const totalMatches = Object.keys(matchByIdx).length;
+    const usePropForMatch = proposals.length === totalMatches;
+
+    let html = '<div class="bracket-card"><div class="bracket-title">🏆 대진표</div><div class="bracket-wrap">';
+    const totalRounds = b.rounds.length;
+    b.rounds.forEach(function (round, ridx) {
+      const stageLabel =
+        ridx === totalRounds - 1 ? '결승' :
+        ridx === totalRounds - 2 ? '준결승' :
+        ridx === 0 ? '1라운드' : (ridx + 1) + '라운드';
+      html += '<div class="bracket-round">';
+      html += '<div class="bracket-round-title">' + escapeHtml(stageLabel) + '</div>';
+      round.forEach(function (m) {
+        // 매치 인덱스로 proposal 찾기 (가능하면)
+        const prop = usePropForMatch ? proposals[m.matchIdx] : null;
+        const teamAName = prop && prop.team_a ? prop.team_a.name :
+          (m.teamA != null ? 'T' + m.teamA : null);
+        const teamBName = prop && prop.team_b ? prop.team_b.name :
+          (m.teamB != null ? 'T' + m.teamB : null);
+
+        const stageBadge = prop && prop.stage
+          ? '<span class="bracket-stage">' + escapeHtml(prop.stage) + '</span>' : '';
+
+        if (m.depends_on) {
+          html += '<div class="bracket-match">' + stageBadge +
+            '<div class="bracket-team"><span class="bracket-tbd">M' + m.depends_on[0] + ' 승자</span></div>' +
+            '<div class="bracket-team team-b"><span class="bracket-tbd">M' + m.depends_on[1] + ' 승자</span></div>' +
+            '</div>';
+        } else {
+          html += '<div class="bracket-match">' + stageBadge +
+            '<div class="bracket-team"><span>' + escapeHtml(teamAName || 'TBD') + '</span></div>' +
+            '<div class="bracket-team team-b"><span class="vs-sep">vs</span>' +
+            '<span>' + escapeHtml(teamBName || 'TBD') + '</span></div>' +
+            '</div>';
+        }
+      });
+      html += '</div>';
+    });
+    html += '</div></div>';
+    area.innerHTML = html;
+    area.style.display = 'block';
   }
 
   function showResult(ids) {
