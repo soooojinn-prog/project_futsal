@@ -19,7 +19,7 @@
 | **LangChain** | `ai-service/rag/` retriever + chain | 8회차 평가 누적 |
 | **LangGraph** | `agent/graph.py` conditional edge + 3개 sub-agent | 평가 5회차 만점 |
 | **멀티에이전트** | `ThreadPoolExecutor`로 StadiumAgent/TeamAgent/MatchAgent 병렬 | 토너먼트 모드 동시 실행 |
-| **RAG** | LangChain + ChromaDB + sentence-transformers + Claude | `answer_faithfulness` 0.444 → 0.833 |
+| **RAG** | LangChain + ChromaDB + sentence-transformers + Claude + MMR | `answer_faithfulness` 0.444 → 0.889 |
 | **ML / CV** | MediaPipe 33점 + scikit-learn RandomForest + PyTorch MLP 비교 | RF accuracy 0.942 (8차) |
 
 ---
@@ -46,11 +46,18 @@
 | 5 | 0.722 | 1.000 | 1.000 | 0.444 | 1.000 | judge 부분 일치 + top_k 4→6 |
 | 6 | 0.722 | 1.000 | 1.000 | 0.722 | 1.000 | judge relaxed mode |
 | 7 | **0.833** ↑ | 1.000 | 1.000 | 0.722 | 1.000 | `CHUNK_SIZE 500→700` 재인덱싱, top_k 8 |
-| **8** | **0.833** | **1.000** | **1.000** | **0.833** ⭐ | **1.000** | 골든셋 reference 5건 정정 (q08/09/11/12/13) |
+| 8 | 0.833 | 1.000 | 1.000 | 0.833 | 1.000 | 골든셋 reference 5건 정정 (q08/09/11/12/13) |
+| **9** | **0.833** | **1.000** | **1.000** | **0.889** ⭐ | **1.000** | **MMR 추가** (fetch_k=24, lambda=0.6) — retrieval 다양성 |
 
-> **`answer_faithfulness` +87.6% 개선** (0.444 → 0.833). 5/5 지표 목표 통과.
+> **`answer_faithfulness` +100% 개선** (0.444 → 0.889). 5/5 지표 목표 통과.
 
 **시행착오 솔직 기록**: 2회차 0.333은 의도적으로 보존 — "프롬프트 엄격화가 역효과를 냈고 그걸 reverse하면서 학습"이라는 의사결정 스토리.
+
+**9회차에서 도달한 최종 retriever 설정**:
+- `CHUNK_SIZE=700`, `CHUNK_OVERLAP=120` (재인덱싱 후 38→27청크)
+- `top_k=8`, **MMR `lambda=0.6` + `fetch_k=24`** — 관련성·다양성 균형
+- 시스템 프롬프트에 "시간 제한·거리·인원수 같은 핵심 수치 반드시 포함" 명시
+- LLM judge `temperature=0` + relaxed mode (회피 답변만 0)
 
 ---
 
@@ -80,6 +87,12 @@
 **핵심 인사이트**: LLM judge가 받는 신호 정보가 부족하면 평가가 무력해진다. `state["tool_calls"].append(...)`로 호출 흔적을 직접 캡처해 deterministic 검증으로 전환한 게 핵심.
 
 ---
+
+### LangGraph 추가 구현 (작업 완료 후 보강)
+
+- **사용자→팀 자동 매핑** (commit `bd216e4`, `778a2b1`): `UserMapper.selectTeamsByUserId(userId)`로 세션 사용자의 소속 팀을 조회해 `AgentRequest.team_info`로 Python에 전달. 토너먼트 모드의 `find_team_conflicts`가 실제 동작.
+- **토너먼트 더미팀 fallback** (commit `ea8d7df`): 사용자 소속 팀 < `slots.team_count`이면 데모용 더미 팀 자동 보충 + power-of-2 보정. 회원가입 직후 사용자도 시연 가능.
+- **대진표 시각화** (commit `cc6409d`): 응답 `bracket.rounds`를 라운드 column + 매치 카드 + depends_on 'TBD (M{idx} 승자)' placeholder로 한눈에. 결승/준결승 한국어 라벨.
 
 ## 4. 기능 3 — ML 풋살 자세 분석 (MediaPipe + scikit-learn)
 
@@ -141,8 +154,22 @@
 
 - 모든 페이지에 일관된 그라데이션 + 네비 이모지 (⚽/👥/🏟️/🏆/📋/🤖/🏃)
 - `.nav-emoji` / `.hero-emoji` span으로 이모지가 텍스트 그라데이션에 덮이지 않도록 격리
-- 자세 분석 결과 화면: 신뢰도 게이지·클래스 확률 막대·기준 각도 비교 막대·신뢰도 경고 배너로 시각적 설명
-- 챗봇 답변 마크다운 자제 시스템 프롬프트 (raw `#`, `|` 노출 방지)
+- 자세 분석 결과 화면: **신뢰도 게이지·클래스 확률 막대·기준 각도 비교 막대·신뢰도 < 75% 경고 배너**로 시각적 설명 (commit `769b6af`)
+- 토너먼트 **대진표 시각화** (commit `cc6409d`): 라운드별 column + depends_on placeholder
+- 챗봇 답변 마크다운 자제 시스템 프롬프트 (raw `#`, `|` 노출 방지, commit `8b6fbf9`)
+- 챗봇 위젯 **로딩 표시** (3-dot bounce) + **citation 한글 라벨 매핑** (`[rules 11 offside]` → `· 규칙 11 · 오프사이드`) (commit `27dc2c0`)
+- **모바일 반응형** (commit `11e82de`): 네비 가로 스크롤, 챗봇 panel 100vw, AI 페이지 padding 축소
+- AI 페이지 구조 표준화 (commit `3781986`): 자체 DOCTYPE/head 제거 → `match/list.jsp` 패턴으로 일관
+
+## 7. 핵심 버그 수정 (트러블슈팅)
+
+| 증상 | 원인 | 해결 | commit |
+|---|---|---|---|
+| Pose 분석 500 에러 | `FeatureBuilder._joint_angle` 메서드 사라짐 | 모듈 레벨 `_angle` 함수 import | `9cdc982` |
+| 챗봇 무응답 | `coordinator.jsp` 자체 head로 `const contextPath` 미정의 | fetch URL을 JSP 표현식 직접 사용 | `f96fff2` |
+| AI 페이지 헤더 안 보임 | 자체 DOCTYPE/head → header.jsp 중첩 | 최상단 `<jsp:include header>` 패턴 | `3781986` |
+| 토너먼트 ValueError | 사용자 팀 0개 → `generate_bracket([])` | 더미팀 자동 보충 + power-of-2 | `ea8d7df` |
+| h1 이모지 그라데이션에 덮임 | `-webkit-text-fill-color: transparent`가 이모지까지 | `.hero-emoji` span 격리 | `dd5ae1e` |
 
 ---
 

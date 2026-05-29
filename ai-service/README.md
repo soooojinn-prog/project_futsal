@@ -125,21 +125,24 @@ python -m eval.run_agent_eval --note "이번 변경 메모"
 
 매 실행 시 `eval/agent_report_<timestamp>.md` + `eval/agent_history.md` 자동 누적 (RAG와 동일).
 
-### 4개 지표 + 최종 결과 (2026-05-21, 2회차)
+### 4개 지표 + 최종 결과 (2026-05-26, 5회차)
 
-| 지표 | 정의 | 목표 | 최종 |
-|---|---|---|---|
-| `intent_acc` | 의도 분류 정확도 | ≥ 0.90 | **1.000** ✅ |
-| `tool_correctness` | 기대 Tool 호출 흔적 (LLM judge) | ≥ 0.85 | 0.125 ❌ |
-| `proposal_validity` | 시나리오별 최소 제안 수 충족 | ≥ 0.90 | 0.750 ❌ |
-| `e2e_success` | 전체 통과 | ≥ 0.75 | 0.000 ❌ |
+| 지표 | 정의 | 목표 | 베이스라인 | 최종 |
+|---|---|---|---|---|
+| `intent_acc` | 의도 분류 정확도 | ≥ 0.90 | 1.000 | **1.000** ✅ |
+| `tool_correctness` | 기대 Tool 호출 흔적 | ≥ 0.85 | 0.125 | **1.000** ⭐ |
+| `proposal_validity` | 시나리오별 최소 제안 수 충족 | ≥ 0.90 | 0.750 | **1.000** ⭐ |
+| `e2e_success` | 전체 통과 | ≥ 0.75 | 0.000 | **1.000** ⭐ |
 
-`tool_correctness 0.125`는 **평가 구조 한계**다 — judge에 전달하는 `actual_signals`가 `warnings + proposals_count` 메타데이터만이라 실제 호출된 tool 정보를 LLM이 직접 볼 수 없다. LangSmith 트레이스 대시보드에서는 실제 노드/도구 호출이 모두 시각화되므로, 정량 점수 + 정성 trace를 함께 봐야 한다.
+**베이스라인 대비**: tool_correctness 0.125 → **1.000**, e2e_success 0.000 → **1.000**. 4지표 모두 만점.
 
-향후 고도화 백로그:
-- `AgentState`에 `tool_calls: list[dict]` 필드 추가해 노드 진행 시 실제 호출 기록
-- judge에 그 기록을 전달 (또는 deterministic 매칭으로 LLM judge 대체)
-- `proposal_validity` 미달 시나리오 디버깅
+### 주요 개선 단계
+1. **`AgentState.tool_calls` 필드 추가** (commit `fb75741`) — 노드/sub-agent가 호출한 tool 이름을 명시적으로 누적
+2. **deterministic 매칭** (commit `d666538`) — LLM judge 우회, `expected_tools ⊆ actual_tools` 검증
+3. **시나리오 재설계** (commit `d666538`) — s07을 'DB에 없는 제주도'로 변경해 자연스러운 빈 결과 + warning
+4. **team_count 정규식 파싱** — '3팀'/'4팀'/'8팀' 모두 인식
+5. **사용자→팀 자동 매핑** (commit `bd216e4`, `778a2b1`) — `UserMapper.selectTeamsByUserId`로 세션 사용자 팀을 토너먼트에 자동 참여
+6. **더미팀 fallback** (commit `ea8d7df`) — 사용자 팀 부족 시 데모용 팀 자동 보충 + power-of-2 보정
 
 ## Pose 모델 학습
 
@@ -188,16 +191,17 @@ python -m eval.run_eval --note "이번 변경 메모"
 | `retrieval@1` | top-1 청크의 source가 expected_source와 일치 | ≥ 0.70 | 0.722 | **0.833** ✅ |
 | `retrieval@4` | top-4 중 하나라도 expected_source 포함 | ≥ 0.90 | 1.000 | **1.000** ✅ |
 | `citation_present` | citations 비어있지 않은 비율 | ≥ 0.95 | 1.000 | **1.000** ✅ |
-| `answer_faithfulness` | LLM-as-judge로 answer/reference 의미 일치 | ≥ 0.80 | 0.444 | **0.833** ✅ |
+| `answer_faithfulness` | LLM-as-judge로 answer/reference 의미 일치 | ≥ 0.80 | 0.444 | **0.889** ✅ |
 | `advice_classification_acc` | ADVICE 질문이 ADVICE로 분류되는 비율 | ≥ 0.90 | 1.000 | **1.000** ✅ |
 
-**`answer_faithfulness` 0.444 → 0.833 (+87.6%)** 개선. 회차별 변경 사항·실패 사례는 `eval/rag_history.md` 참고.
+**`answer_faithfulness` 0.444 → 0.889 (+100%)** 개선 (9회차). 회차별 변경 사항·실패 사례는 `eval/rag_history.md` 참고.
 
 ### 주요 개선 단계
 1. **인덱스 튜닝** — `CHUNK_SIZE 500→700`, `CHUNK_OVERLAP 80→120`, `top_k 4→8`
 2. **시스템 프롬프트** — 시간 제한·거리·인원수 같은 핵심 수치 답변에 반드시 포함하도록 명시
 3. **Golden set 정정** — 코퍼스 실제 사실과 어긋났던 reference 5건 정정 (`q08, q09, q11, q12, q13`)
 4. **LLM judge** — `temperature=0` 강제 + relaxed mode (회피 답변만 0, 부분 일치 1)
+5. **MMR (Maximal Marginal Relevance)** — `Retriever.search(use_mmr=True, fetch_k=24, lambda=0.6)`로 retrieval 관련성·다양성 균형 → `faithfulness 0.833 → 0.889`
 
 산출물: `eval/report_<timestamp>.md` + `eval/rag_history.md` (회차 비교표)
 
